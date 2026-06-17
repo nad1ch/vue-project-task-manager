@@ -21,7 +21,8 @@ the browser and deploys as a static site.
 - **Drag & drop** — reorder within a lane, move across columns (status + order in one action), and reorder table rows in the default order. DnD is disabled with a clear explanation while sorting/filters are active, so reordering is never ambiguous.
 - **Validation** — `vee-validate` + `zod`; errors on blur and on submit; due date must be today-or-later when creating.
 - **Persistence** — projects/tasks via the mock API, and view mode + sorting + filters + column widths via a separate preferences key. Everything survives a reload.
-- **Product polish** — light/dark theme, toasts, skeletons, empty/error states, a dashboard with KPIs and a tasks-by-status chart, optimistic updates with rollback, and accessibility basics (semantic table with `aria-sort`, focus-trapped modals, labelled controls, status conveyed by text + colour).
+- **Dashboard** — KPI cards (projects, open tasks, completed, overdue), a tasks-by-status chart, an upcoming-deadlines list, and a "needs attention" panel — all derived from the stores.
+- **Product polish** — a designed light/dark theme, an inline icon set, one-click **Reset demo data**, toasts, skeletons, icon-led empty/error states, optimistic updates with rollback, and accessibility basics (semantic table with `aria-sort`, focus-trapped modals, labelled controls, status conveyed by text + colour).
 
 ## Tech stack
 
