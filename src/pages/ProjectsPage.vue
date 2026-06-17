@@ -28,6 +28,7 @@ import BaseInput from '@/components/ui/BaseInput.vue';
 import BaseSelect from '@/components/ui/BaseSelect.vue';
 import StatusBadge from '@/components/ui/StatusBadge.vue';
 import IconButton from '@/components/ui/IconButton.vue';
+import AppIcon from '@/components/ui/AppIcon.vue';
 import EmptyState from '@/components/ui/EmptyState.vue';
 import ErrorState from '@/components/ui/ErrorState.vue';
 import TableSkeleton from '@/components/ui/TableSkeleton.vue';
@@ -166,7 +167,7 @@ const showNoMatch = computed(() => items.value.length > 0 && filtered.value.leng
   <section class="projects">
     <PageHeader title="Projects" :subtitle="`${items.length} project${items.length === 1 ? '' : 's'}`">
       <template #actions>
-        <BaseButton variant="primary" @click="openCreate">+ New project</BaseButton>
+        <BaseButton variant="primary" @click="openCreate"><AppIcon name="plus" :size="16" />New project</BaseButton>
       </template>
     </PageHeader>
 
@@ -190,15 +191,17 @@ const showNoMatch = computed(() => items.value.length > 0 && filtered.value.leng
       />
       <EmptyState
         v-else-if="showEmpty"
+        icon="projects"
         title="No projects yet"
         description="Create your first project to start tracking work."
       >
         <template #actions>
-          <BaseButton variant="primary" @click="openCreate">+ New project</BaseButton>
+          <BaseButton variant="primary" @click="openCreate"><AppIcon name="plus" :size="16" />New project</BaseButton>
         </template>
       </EmptyState>
       <EmptyState
         v-else-if="showNoMatch"
+        icon="search"
         title="No projects match your filters"
         description="Try adjusting the search or status filter."
       >
@@ -235,8 +238,8 @@ const showNoMatch = computed(() => items.value.length > 0 && filtered.value.leng
           <td><span class="tabular muted">{{ formatDate(project.createdAt) }}</span></td>
           <td class="dt-cell--right" @click.stop>
             <div class="row-actions">
-              <IconButton label="Edit project" @click="openEdit(project)">✎</IconButton>
-              <IconButton label="Delete project" danger @click="onDelete(project)">🗑</IconButton>
+              <IconButton label="Edit project" @click="openEdit(project)"><AppIcon name="pencil" :size="16" /></IconButton>
+              <IconButton label="Delete project" danger @click="onDelete(project)"><AppIcon name="trash" :size="16" /></IconButton>
             </div>
           </td>
           </tr>
@@ -257,8 +260,8 @@ const showNoMatch = computed(() => items.value.length > 0 && filtered.value.leng
 
 <style scoped lang="scss">
 .projects {
-  padding: var(--space-5);
-  max-width: 1200px;
+  padding: var(--space-6);
+  max-width: var(--content-max);
   margin: 0 auto;
 }
 .card {
@@ -266,6 +269,7 @@ const showNoMatch = computed(() => items.value.length > 0 && filtered.value.leng
   border: 1px solid var(--border);
   border-radius: var(--radius-lg);
   overflow: hidden;
+  box-shadow: var(--shadow-sm);
 }
 .filter {
   width: 200px;

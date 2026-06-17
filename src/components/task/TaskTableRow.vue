@@ -4,6 +4,7 @@ import { TASK_STATUS_META } from '@/constants';
 import type { Task } from '@/types';
 import StatusBadge from '@/components/ui/StatusBadge.vue';
 import IconButton from '@/components/ui/IconButton.vue';
+import AppIcon from '@/components/ui/AppIcon.vue';
 
 defineProps<{ task: Task; draggable?: boolean }>();
 defineEmits<{ edit: []; delete: [] }>();
@@ -27,8 +28,8 @@ defineEmits<{ edit: []; delete: [] }>();
     </td>
     <td class="dt-cell--right" @click.stop>
       <div class="row-actions">
-        <IconButton label="Edit task" @click="$emit('edit')">✎</IconButton>
-        <IconButton label="Delete task" danger @click="$emit('delete')">🗑</IconButton>
+        <IconButton label="Edit task" @click="$emit('edit')"><AppIcon name="pencil" :size="16" /></IconButton>
+        <IconButton label="Delete task" danger @click="$emit('delete')"><AppIcon name="trash" :size="16" /></IconButton>
       </div>
     </td>
   </tr>

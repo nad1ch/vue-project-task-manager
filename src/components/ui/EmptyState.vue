@@ -1,11 +1,15 @@
 <script setup lang="ts">
-defineProps<{ title: string; description?: string }>();
+import AppIcon, { type IconName } from './AppIcon.vue';
+
+withDefaults(defineProps<{ title: string; description?: string; icon?: IconName }>(), {
+  icon: 'list',
+});
 </script>
 
 <template>
   <div class="empty">
     <div class="empty__icon" aria-hidden="true">
-      <slot name="icon">◍</slot>
+      <AppIcon :name="icon" :size="22" />
     </div>
     <h3 class="empty__title">{{ title }}</h3>
     <p v-if="description" class="empty__desc">{{ description }}</p>
@@ -23,18 +27,18 @@ defineProps<{ title: string; description?: string }>();
   text-align: center;
   gap: var(--space-2);
   padding: var(--space-7) var(--space-5);
-  max-width: 380px;
+  max-width: 400px;
   margin: 0 auto;
 
   &__icon {
     display: grid;
     place-items: center;
-    width: 48px;
-    height: 48px;
+    width: 52px;
+    height: 52px;
     border-radius: var(--radius-lg);
     background: var(--surface-subtle);
-    color: var(--text-faint);
-    font-size: 22px;
+    border: 1px solid var(--border-subtle);
+    color: var(--text-muted);
     margin-bottom: var(--space-1);
   }
   &__title {
@@ -43,6 +47,7 @@ defineProps<{ title: string; description?: string }>();
   &__desc {
     color: var(--text-muted);
     font-size: var(--text-sm);
+    line-height: var(--leading-normal);
   }
   &__actions {
     margin-top: var(--space-3);

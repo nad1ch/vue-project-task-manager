@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { formatDate, isOverdue } from '@/lib/date';
 import type { Task } from '@/types';
+import AppIcon from '@/components/ui/AppIcon.vue';
 
 defineProps<{ task: Task }>();
 defineEmits<{ edit: []; delete: [] }>();
@@ -11,8 +12,8 @@ defineEmits<{ edit: []; delete: [] }>();
     <div class="kcard__top">
       <span class="mono kcard__id">#{{ task.id }}</span>
       <div class="kcard__actions">
-        <button type="button" aria-label="Edit task" @click.stop="$emit('edit')">✎</button>
-        <button type="button" aria-label="Delete task" @click.stop="$emit('delete')">🗑</button>
+        <button type="button" aria-label="Edit task" @click.stop="$emit('edit')"><AppIcon name="pencil" :size="14" /></button>
+        <button type="button" aria-label="Delete task" @click.stop="$emit('delete')"><AppIcon name="trash" :size="14" /></button>
       </div>
     </div>
     <p class="kcard__title">{{ task.title }}</p>

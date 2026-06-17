@@ -31,6 +31,7 @@ import KanbanBoard from '@/components/kanban/KanbanBoard.vue';
 import BaseButton from '@/components/ui/BaseButton.vue';
 import BaseSelect from '@/components/ui/BaseSelect.vue';
 import StatusBadge from '@/components/ui/StatusBadge.vue';
+import AppIcon from '@/components/ui/AppIcon.vue';
 import ViewModeToggle from '@/components/ui/ViewModeToggle.vue';
 import EmptyState from '@/components/ui/EmptyState.vue';
 import ErrorState from '@/components/ui/ErrorState.vue';
@@ -237,7 +238,7 @@ const showContent = computed(
     <RouterLink class="details__back" :to="{ name: RouteNames.Projects }">← Projects</RouterLink>
 
     <div v-if="notFound">
-      <EmptyState title="Project not found" description="This project may have been deleted.">
+      <EmptyState icon="alert" title="Project not found" description="This project may have been deleted.">
         <template #actions>
           <RouterLink :to="{ name: RouteNames.Projects }">
             <BaseButton variant="primary">Back to projects</BaseButton>
@@ -253,7 +254,7 @@ const showContent = computed(
             :label="PROJECT_STATUS_META[project.status].label"
             :tone="PROJECT_STATUS_META[project.status].tone"
           />
-          <BaseButton variant="primary" @click="openCreate()">+ New task</BaseButton>
+          <BaseButton variant="primary" @click="openCreate()"><AppIcon name="plus" :size="16" />New task</BaseButton>
         </template>
       </PageHeader>
 
@@ -290,11 +291,12 @@ const showContent = computed(
           description="Add the first task for this project."
         >
           <template #actions>
-            <BaseButton variant="primary" @click="openCreate()">+ New task</BaseButton>
+            <BaseButton variant="primary" @click="openCreate()"><AppIcon name="plus" :size="16" />New task</BaseButton>
           </template>
         </EmptyState>
         <EmptyState
           v-else-if="showNoMatch"
+          icon="search"
           title="No tasks match your filters"
           description="Try a different assignee or status."
         >
@@ -383,8 +385,8 @@ const showContent = computed(
 
 <style scoped lang="scss">
 .details {
-  padding: var(--space-5);
-  max-width: 1100px;
+  padding: var(--space-6);
+  max-width: var(--content-max);
   margin: 0 auto;
 
   &__back {
@@ -403,6 +405,7 @@ const showContent = computed(
   border: 1px solid var(--border);
   border-radius: var(--radius-lg);
   overflow: hidden;
+  box-shadow: var(--shadow-sm);
 }
 .filter {
   width: 190px;
