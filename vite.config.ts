@@ -8,6 +8,8 @@ const stylesDir = fileURLToPath(new URL('./src/styles', import.meta.url)).replac
 
 // https://vite.dev/config/
 export default defineConfig({
+  // Served from a repo subpath on GitHub Pages.
+  base: '/vue-project-task-manager/',
   plugins: [vue()],
   resolve: {
     alias: {
