@@ -1,6 +1,12 @@
 import { defineStore } from 'pinia';
 import { computed } from 'vue';
-import { DEFAULT_UI_PREFERENCES, STORAGE_KEYS } from '@/constants';
+import {
+  DEFAULT_PROJECT_COLUMN_WIDTHS,
+  DEFAULT_TASK_COLUMN_WIDTHS,
+  DEFAULT_UI_PREFERENCES,
+  STORAGE_KEYS,
+  UI_PREFS_LAYOUT_VERSION,
+} from '@/constants';
 import { usePersistedRef } from '@/composables/usePersistedRef';
 import {
   SortDirection,
@@ -19,6 +25,37 @@ function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null;
 }
 
+/**
+ * Parse persisted prefs and run a one-time layout migration: when the stored
+ * layout version is missing or old, adopt the new compact table column widths
+ * while preserving theme, locale, filters, sorting and view mode. Corrupt or
+ * non-object input falls back to defaults.
+ */
+function migratePrefs(raw: unknown): UiPreferences {
+  if (!isRecord(raw)) return { ...DEFAULT_UI_PREFERENCES };
+  const stored = raw as Partial<UiPreferences>;
+  const merged: UiPreferences = { ...DEFAULT_UI_PREFERENCES, ...stored };
+  if (stored.layoutVersion !== UI_PREFS_LAYOUT_VERSION) {
+    merged.projectColumnWidths = { ...DEFAULT_PROJECT_COLUMN_WIDTHS };
+    merged.taskColumnWidths = { ...DEFAULT_TASK_COLUMN_WIDTHS };
+    merged.layoutVersion = UI_PREFS_LAYOUT_VERSION;
+  }
+  return merged;
+}
+
+/** True when localStorage holds prefs from an older (or missing) layout version. */
+function storedLayoutIsStale(): boolean {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEYS.uiPrefs);
+    if (raw === null) return false;
+    const parsed: unknown = JSON.parse(raw);
+    if (!isRecord(parsed)) return false;
+    return parsed.layoutVersion !== UI_PREFS_LAYOUT_VERSION;
+  } catch {
+    return false;
+  }
+}
+
 function nextSort<K extends string>(
   current: SortDescriptor<K> | null,
   key: K,
@@ -30,9 +67,14 @@ function nextSort<K extends string>(
 
 export const useUiPrefsStore = defineStore('ui-prefs', () => {
   const prefs = usePersistedRef<UiPreferences>(STORAGE_KEYS.uiPrefs, DEFAULT_UI_PREFERENCES, {
-    parse: (raw) =>
-      isRecord(raw) ? { ...DEFAULT_UI_PREFERENCES, ...(raw as Partial<UiPreferences>) } : DEFAULT_UI_PREFERENCES,
+    parse: migratePrefs,
   });
+
+  // Persist the migrated shape exactly once, so the one-time layout migration is
+  // not re-applied on every load. Re-assigning triggers the persisted (sync) write.
+  if (storedLayoutIsStale()) {
+    prefs.value = { ...prefs.value };
+  }
 
   const viewMode = computed(() => prefs.value.viewMode);
   const theme = computed(() => prefs.value.theme);

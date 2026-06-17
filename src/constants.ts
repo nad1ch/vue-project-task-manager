@@ -17,6 +17,8 @@ export const STORAGE_KEYS = {
 } as const;
 
 export const SCHEMA_VERSION = 1;
+/** Bumped when the default UI layout changes (e.g. compact table column widths). */
+export const UI_PREFS_LAYOUT_VERSION = 1;
 export const DEBOUNCE_MS = 250;
 export const MOCK_LATENCY_MIN_MS = 150;
 export const MOCK_LATENCY_MAX_MS = 300;
@@ -56,6 +58,7 @@ export const DEFAULT_TASK_COLUMN_WIDTHS: Required<ColumnWidths<TaskColumnKey>> =
 };
 
 export const DEFAULT_UI_PREFERENCES: UiPreferences = {
+  layoutVersion: UI_PREFS_LAYOUT_VERSION,
   viewMode: ViewMode.Table,
   theme: 'light',
   locale: 'en',

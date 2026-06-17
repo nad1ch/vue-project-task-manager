@@ -46,6 +46,8 @@ export interface TaskFilters {
 export type ColumnWidths<K extends string> = Partial<Record<K, number>>;
 
 export interface UiPreferences {
+  /** Bumped when default layout (e.g. table column widths) changes; drives a one-time migration. */
+  layoutVersion: number;
   viewMode: ViewMode;
   theme: ThemeMode;
   locale: AppLocale;

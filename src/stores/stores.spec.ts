@@ -3,7 +3,13 @@ import { createPinia, setActivePinia } from 'pinia';
 import { installMock, db } from '@/mock';
 import { ApiError } from '@/api';
 import { ApiErrorCode, TaskStatus } from '@/types';
-import { STORAGE_KEYS } from '@/constants';
+import {
+  DEFAULT_PROJECT_COLUMN_WIDTHS,
+  DEFAULT_TASK_COLUMN_WIDTHS,
+  DEFAULT_UI_PREFERENCES,
+  STORAGE_KEYS,
+  UI_PREFS_LAYOUT_VERSION,
+} from '@/constants';
 import { useProjectsStore } from './useProjectsStore';
 import { useTasksStore } from './useTasksStore';
 import { useUiPrefsStore } from './useUiPrefsStore';
@@ -117,5 +123,48 @@ describe('useUiPrefsStore', () => {
     setActivePinia(createPinia());
     const ui = useUiPrefsStore();
     expect(ui.viewMode).toBe('table');
+  });
+
+  it('migrates old persisted column widths to the new defaults once, preserving other prefs', () => {
+    // Existing user: old wide widths + theme/locale/viewMode set, no layoutVersion.
+    localStorage.setItem(
+      STORAGE_KEYS.uiPrefs,
+      JSON.stringify({
+        viewMode: 'kanban',
+        theme: 'dark',
+        locale: 'uk',
+        projectColumnWidths: { id: 80, name: 280, tasksCount: 130, status: 140, createdAt: 170 },
+        taskColumnWidths: { id: 80, title: 340, assignee: 160, status: 150, dueDate: 160 },
+      }),
+    );
+    setActivePinia(createPinia());
+    const ui = useUiPrefsStore();
+
+    // Column widths reset to the new compact defaults...
+    expect(ui.projectColumnWidths).toEqual(DEFAULT_PROJECT_COLUMN_WIDTHS);
+    expect(ui.taskColumnWidths).toEqual(DEFAULT_TASK_COLUMN_WIDTHS);
+    // ...but theme, locale and view mode are preserved.
+    expect(ui.theme).toBe('dark');
+    expect(ui.locale).toBe('uk');
+    expect(ui.viewMode).toBe('kanban');
+    // The migration is persisted so it won't re-run on the next load.
+    const stored = JSON.parse(localStorage.getItem(STORAGE_KEYS.uiPrefs) ?? '{}');
+    expect(stored.layoutVersion).toBe(UI_PREFS_LAYOUT_VERSION);
+    expect(stored.theme).toBe('dark');
+  });
+
+  it('keeps customized column widths once the layout version is current', () => {
+    const custom = { id: 100, name: 300, tasksCount: 120, status: 132, createdAt: 160 };
+    localStorage.setItem(
+      STORAGE_KEYS.uiPrefs,
+      JSON.stringify({
+        ...DEFAULT_UI_PREFERENCES,
+        layoutVersion: UI_PREFS_LAYOUT_VERSION,
+        projectColumnWidths: custom,
+      }),
+    );
+    setActivePinia(createPinia());
+    const ui = useUiPrefsStore();
+    expect(ui.projectColumnWidths).toEqual(custom);
   });
 });
