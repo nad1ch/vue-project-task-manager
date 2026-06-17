@@ -18,13 +18,14 @@ describe('mock projects API', () => {
     expect(projects.length).toBeGreaterThan(0);
   });
 
-  it('POST /projects creates with a numeric incrementing id', async () => {
+  it('POST /projects continues the project id sequence (#4 after seeded #1-#3)', async () => {
     const before = await api.get<Project[]>('/projects');
     const created = await api.post<Project, CreateProjectDto>('/projects', {
       name: 'New Project',
       status: 'active',
     });
-    expect(typeof created.id).toBe('number');
+    // Seed projects are #1, #2, #3 — the next project must be #4, not a shared global id.
+    expect(created.id).toBe(4);
     const after = await api.get<Project[]>('/projects');
     expect(after.length).toBe(before.length + 1);
   });
@@ -71,6 +72,8 @@ describe('mock tasks API', () => {
     });
     expect(created.projectId).toBe(2);
     expect(typeof created.order).toBe('number');
+    // Tasks use their own sequence (seed tasks end at #11 → next task is #12).
+    expect(created.id).toBe(12);
   });
 });
 

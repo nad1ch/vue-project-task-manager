@@ -18,7 +18,7 @@ export function registerProjectHandlers(mock: MockAdapter): void {
       }
       const now = nowIso();
       const project: Project = {
-        id: db.nextId(),
+        id: db.nextProjectId(),
         name: dto.name.trim(),
         description: dto.description?.trim() || undefined,
         status: dto.status,

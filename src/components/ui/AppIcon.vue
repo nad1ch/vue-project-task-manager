@@ -17,7 +17,8 @@ export type IconName =
   | 'list'
   | 'close'
   | 'arrow-left'
-  | 'chevron-down';
+  | 'chevron-down'
+  | 'chevron-right';
 
 type Shape =
   | { tag: 'path'; d: string }
@@ -102,6 +103,7 @@ const ICONS: Record<IconName, Shape[]> = {
     { tag: 'line', x1: 19, y1: 12, x2: 5, y2: 12 },
   ],
   'chevron-down': [{ tag: 'path', d: 'm6 9 6 6 6-6' }],
+  'chevron-right': [{ tag: 'path', d: 'm9 18 6-6-6-6' }],
 };
 
 const props = withDefaults(defineProps<{ name: IconName; size?: number }>(), { size: 18 });
@@ -143,3 +145,11 @@ const shapes = computed<Shape[]>(() => ICONS[props.name]);
     </template>
   </svg>
 </template>
+
+<style scoped>
+/* Block display removes the inline-SVG baseline gap so icons align in flex rows. */
+svg {
+  display: block;
+  flex-shrink: 0;
+}
+</style>

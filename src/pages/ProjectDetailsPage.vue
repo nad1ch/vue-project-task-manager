@@ -235,7 +235,10 @@ const showContent = computed(
 
 <template>
   <section class="details">
-    <RouterLink class="details__back" :to="{ name: RouteNames.Projects }">← Projects</RouterLink>
+    <RouterLink class="details__back" :to="{ name: RouteNames.Projects }">
+      <AppIcon name="arrow-left" :size="15" />
+      <span>Projects</span>
+    </RouterLink>
 
     <div v-if="notFound">
       <EmptyState icon="alert" title="Project not found" description="This project may have been deleted.">
@@ -390,7 +393,9 @@ const showContent = computed(
   margin: 0 auto;
 
   &__back {
-    display: inline-block;
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-1);
     margin-bottom: var(--space-3);
     font-size: var(--text-sm);
     color: var(--text-muted);

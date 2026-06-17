@@ -38,11 +38,14 @@ defineEmits<{ edit: []; delete: [] }>();
   cursor: pointer;
   transition:
     box-shadow var(--dur-fast),
-    transform var(--dur-fast);
+    border-color var(--dur-fast),
+    background var(--dur-fast);
 
+  // No geometry-changing transform — avoids clipping at the top of a column on hover/drag.
   &:hover {
+    background: var(--surface-hover);
+    border-color: var(--border-strong);
     box-shadow: var(--shadow-sm);
-    transform: translateY(-1px);
   }
 
   &__top {

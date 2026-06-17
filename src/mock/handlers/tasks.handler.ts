@@ -31,7 +31,7 @@ export function registerTaskHandlers(mock: MockAdapter): void {
       ).length;
       const now = nowIso();
       const task: Task = {
-        id: db.nextId(),
+        id: db.nextTaskId(),
         projectId: dto.projectId,
         title: dto.title.trim(),
         status: dto.status,

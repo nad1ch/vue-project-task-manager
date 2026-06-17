@@ -4,7 +4,15 @@ import { seedProjects, seedTasks } from './seed';
 
 interface DbMeta {
   schemaVersion: number;
-  seq: number;
+  /** Separate per-entity id sequences. */
+  projectSeq?: number;
+  taskSeq?: number;
+  /** Legacy single sequence (pre-split); retained for safe migration. */
+  seq?: number;
+}
+
+function maxId(rows: ReadonlyArray<{ id: number }>): number {
+  return rows.reduce((max, row) => Math.max(max, row.id), 0);
 }
 
 function read<T>(key: string, fallback: T): T {
@@ -42,8 +50,27 @@ function ensureSeeded(): void {
   const tasks = seedTasks();
   write(STORAGE_KEYS.projects, projects);
   write(STORAGE_KEYS.tasks, tasks);
-  const maxId = Math.max(0, ...projects.map((p) => p.id), ...tasks.map((t) => t.id));
-  writeMeta({ schemaVersion: SCHEMA_VERSION, seq: maxId });
+  writeMeta({
+    schemaVersion: SCHEMA_VERSION,
+    projectSeq: maxId(projects),
+    taskSeq: maxId(tasks),
+  });
+}
+
+/** Next id for an entity type, derived from stored max if no counter exists yet (migration-safe). */
+function nextSeq(kind: 'project' | 'task'): number {
+  const meta = readMeta() ?? { schemaVersion: SCHEMA_VERSION };
+  const current =
+    kind === 'project'
+      ? (meta.projectSeq ?? maxId(read<Project[]>(STORAGE_KEYS.projects, [])))
+      : (meta.taskSeq ?? maxId(read<Task[]>(STORAGE_KEYS.tasks, [])));
+  const next = current + 1;
+  writeMeta({
+    ...meta,
+    schemaVersion: SCHEMA_VERSION,
+    ...(kind === 'project' ? { projectSeq: next } : { taskSeq: next }),
+  });
+  return next;
 }
 
 export const db = {
@@ -51,12 +78,13 @@ export const db = {
   init(): void {
     ensureSeeded();
   },
-  /** Globally unique incrementing id across projects and tasks. */
-  nextId(): number {
-    const meta = readMeta() ?? { schemaVersion: SCHEMA_VERSION, seq: 0 };
-    const seq = meta.seq + 1;
-    writeMeta({ ...meta, seq });
-    return seq;
+  /** Next project id (its own sequence). */
+  nextProjectId(): number {
+    return nextSeq('project');
+  },
+  /** Next task id (its own sequence). */
+  nextTaskId(): number {
+    return nextSeq('task');
   },
   projects(): Project[] {
     return read<Project[]>(STORAGE_KEYS.projects, []);

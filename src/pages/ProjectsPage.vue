@@ -84,6 +84,12 @@ const searchText = ref(uiPrefs.projectFilters.search);
 const applySearch = useDebounceFn((value: string) => uiPrefs.setProjectFilters({ search: value }), DEBOUNCE_MS);
 watch(searchText, (value) => applySearch(value));
 
+function onClearFilters(): void {
+  // Reset the visible input as well as the store, so no stale search text remains.
+  searchText.value = '';
+  uiPrefs.clearProjectFilters();
+}
+
 const statusFilter = computed({
   get: () => uiPrefs.projectFilters.status,
   set: (value: string) => uiPrefs.setProjectFilters({ status: value as ProjectStatus | 'all' }),
@@ -206,7 +212,7 @@ const showNoMatch = computed(() => items.value.length > 0 && filtered.value.leng
         description="Try adjusting the search or status filter."
       >
         <template #actions>
-          <BaseButton variant="secondary" @click="uiPrefs.clearProjectFilters()">Clear filters</BaseButton>
+          <BaseButton variant="secondary" @click="onClearFilters">Clear filters</BaseButton>
         </template>
       </EmptyState>
 
@@ -238,6 +244,7 @@ const showNoMatch = computed(() => items.value.length > 0 && filtered.value.leng
           <td><span class="tabular muted">{{ formatDate(project.createdAt) }}</span></td>
           <td class="dt-cell--right" @click.stop>
             <div class="row-actions">
+              <IconButton label="Open project" @click="goToProject(project)"><AppIcon name="chevron-right" :size="16" /></IconButton>
               <IconButton label="Edit project" @click="openEdit(project)"><AppIcon name="pencil" :size="16" /></IconButton>
               <IconButton label="Delete project" danger @click="onDelete(project)"><AppIcon name="trash" :size="16" /></IconButton>
             </div>
@@ -280,6 +287,10 @@ const showNoMatch = computed(() => items.value.length > 0 && filtered.value.leng
 .project-name {
   font-weight: var(--weight-medium);
   color: var(--text-strong);
+  transition: color var(--dur-fast);
+}
+tr:hover .project-name {
+  color: var(--accent);
 }
 .muted {
   color: var(--text-muted);

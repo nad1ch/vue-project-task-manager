@@ -63,6 +63,20 @@ const options = computed<ChartOptions<'doughnut'>>(() => {
         position: 'bottom',
         labels: { color: cssVar('--text-muted'), boxWidth: 10, boxHeight: 10, padding: 16 },
       },
+      tooltip: {
+        displayColors: false,
+        padding: { top: 8, right: 12, bottom: 8, left: 12 },
+        backgroundColor: cssVar('--surface-raised'),
+        titleColor: cssVar('--text-strong'),
+        bodyColor: cssVar('--text'),
+        borderColor: cssVar('--border'),
+        borderWidth: 1,
+        cornerRadius: 8,
+        callbacks: {
+          title: () => '',
+          label: (ctx) => `${ctx.label}: ${ctx.parsed}`,
+        },
+      },
     },
   };
 });
