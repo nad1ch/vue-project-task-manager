@@ -70,4 +70,15 @@ export const db = {
   saveTasks(rows: Task[]): void {
     write(STORAGE_KEYS.tasks, rows);
   },
+  /** Clear the persisted dataset and re-seed (demo reset). */
+  reset(): void {
+    for (const key of [STORAGE_KEYS.projects, STORAGE_KEYS.tasks, STORAGE_KEYS.meta]) {
+      try {
+        localStorage.removeItem(key);
+      } catch {
+        // ignore
+      }
+    }
+    ensureSeeded();
+  },
 } as const;

@@ -2,7 +2,7 @@ import { computed } from 'vue';
 import { useProjectsStore } from '@/stores/useProjectsStore';
 import { useTasksStore } from '@/stores/useTasksStore';
 import { isOverdue } from '@/lib/date';
-import { ProjectStatus, TaskStatus, type Project } from '@/types';
+import { ProjectStatus, TaskStatus, type Project, type Task } from '@/types';
 
 export function useDashboardStats() {
   const projectsStore = useProjectsStore();
@@ -34,6 +34,19 @@ export function useDashboardStats() {
       .sort((a, b) => b.overdue - a.overdue);
   });
 
+  /** Soonest-due open tasks (not done), with their project name. */
+  const upcomingDeadlines = computed<Array<{ task: Task; projectName: string }>>(() => {
+    return tasksStore.items
+      .filter((t) => t.status !== TaskStatus.Done)
+      .slice()
+      .sort((a, b) => Date.parse(a.dueDate) - Date.parse(b.dueDate))
+      .slice(0, 5)
+      .map((task) => ({
+        task,
+        projectName: projectsStore.projectById(task.projectId)?.name ?? 'Unknown project',
+      }));
+  });
+
   return {
     totalProjects,
     activeProjects,
@@ -44,5 +57,6 @@ export function useDashboardStats() {
     overdueTasks,
     completionRate,
     projectsNeedingAttention,
+    upcomingDeadlines,
   };
 }
