@@ -1,47 +1,50 @@
 // Design tokens (CSS custom properties). Emitted once via main.scss.
-// Concept A: clean SaaS dashboard — light default + dark theme via [data-theme="dark"].
+// Concept A: premium SaaS console — light default + a layered, designed dark theme.
 
 :root {
-  // Surfaces
-  --canvas: #f7f8fa;
+  // Surfaces (3-tier ramp + hover)
+  --canvas: #f6f8fb;
   --surface: #ffffff;
-  --surface-subtle: #f2f4f7;
+  --surface-subtle: #f1f4f9;
   --surface-raised: #ffffff;
-  --surface-hover: #f0f2f5;
+  --surface-hover: #eef1f7;
 
   // Borders
-  --border: #e3e7ed;
-  --border-subtle: #edf0f4;
-  --border-strong: #cdd3dc;
+  --border: #e4e8ef;
+  --border-subtle: #eef1f6;
+  --border-strong: #cfd6e1;
+  --border-dashed: #c3ccd9;
 
   // Text
-  --text-strong: #0f141a;
-  --text: #2a313b;
-  --text-muted: #677081;
-  --text-faint: #98a1b0;
+  --text-strong: #0f1729;
+  --text: #303a4b;
+  --text-muted: #69748a;
+  --text-faint: #97a1b3;
 
   // Accent
   --accent: #4f46e5;
   --accent-hover: #4338ca;
   --accent-soft: #ecebfe;
   --accent-contrast: #ffffff;
-  --focus-ring: rgba(79, 70, 229, 0.45);
+  --focus-ring: rgba(79, 70, 229, 0.42);
+  --brand-gradient: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
 
   // Semantic
   --success: #0e8a50;
-  --success-soft: #e2f6ec;
+  --success-soft: #e3f6ec;
   --warning: #b7791f;
   --warning-soft: #fbf1da;
-  --danger: #d03a4b;
-  --danger-soft: #fce6e9;
+  --danger: #d83a4b;
+  --danger-soft: #fce7ea;
   --info: #2563c9;
-  --info-soft: #e4eefc;
+  --info-soft: #e6effd;
 
   // Misc
   --track: #e7eaef;
-  --overlay: rgba(15, 20, 26, 0.45);
-  --skeleton-base: #e9ecf1;
-  --shadow-color: 220 25% 20%;
+  --overlay: rgba(15, 20, 26, 0.5);
+  --skeleton-base: #e9edf2;
+  --skeleton-sheen: rgba(255, 255, 255, 0.6);
+  --shadow-color: 222 32% 22%;
 
   // Spacing (8px grid, 4px sub-grid)
   --space-1: 4px;
@@ -54,25 +57,27 @@
   --space-8: 64px;
 
   // Radius
-  --radius-xs: 4px;
-  --radius-sm: 6px;
-  --radius-md: 8px;
-  --radius-lg: 10px;
-  --radius-xl: 14px;
+  --radius-xs: 5px;
+  --radius-sm: 7px;
+  --radius-md: 9px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
   --radius-pill: 999px;
 
   // Shadows
-  --shadow-xs: 0 1px 2px hsl(var(--shadow-color) / 0.06);
-  --shadow-sm: 0 1px 3px hsl(var(--shadow-color) / 0.08), 0 1px 2px hsl(var(--shadow-color) / 0.06);
-  --shadow-lg: 0 12px 32px hsl(var(--shadow-color) / 0.16), 0 4px 8px hsl(var(--shadow-color) / 0.08);
+  --shadow-xs: 0 1px 2px hsl(var(--shadow-color) / 0.05);
+  --shadow-sm: 0 1px 2px hsl(var(--shadow-color) / 0.06), 0 2px 6px hsl(var(--shadow-color) / 0.06);
+  --shadow-md: 0 4px 14px hsl(var(--shadow-color) / 0.08), 0 2px 4px hsl(var(--shadow-color) / 0.05);
+  --shadow-lg: 0 18px 44px hsl(var(--shadow-color) / 0.18), 0 6px 12px hsl(var(--shadow-color) / 0.08);
 
   // Layout dims
-  --sidebar-w: 256px;
+  --content-max: 1320px;
+  --sidebar-w: 248px;
   --sidebar-w-collapsed: 64px;
-  --topbar-h: 56px;
+  --topbar-h: 60px;
   --drawer-w: 480px;
-  --row-h-comfortable: 48px;
-  --row-h-compact: 36px;
+  --row-h-comfortable: 52px;
+  --row-h-compact: 38px;
 
   // Typography
   --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, system-ui, sans-serif;
@@ -87,9 +92,9 @@
   --text-base: 14px;
   --text-md: 16px;
   --text-lg: 18px;
-  --text-xl: 20px;
-  --text-2xl: 24px;
-  --text-3xl: 30px;
+  --text-xl: 22px;
+  --text-2xl: 28px;
+  --text-3xl: 34px;
   --leading-tight: 1.2;
   --leading-normal: 1.5;
 
@@ -109,42 +114,47 @@
 }
 
 [data-theme='dark'] {
-  --canvas: #0b0d10;
-  --surface: #14171c;
-  --surface-subtle: #0f1216;
-  --surface-raised: #1b1f26;
-  --surface-hover: #1e232b;
+  // Layered neutral-blue surfaces — not pure black.
+  --canvas: #0d1017;
+  --surface: #161b24;
+  --surface-subtle: #11151c;
+  --surface-raised: #1c2330;
+  --surface-hover: #212a36;
 
-  --border: #262b33;
-  --border-subtle: #1e232b;
-  --border-strong: #363d47;
+  --border: #2a3440;
+  --border-subtle: #1f2731;
+  --border-strong: #3a4654;
+  --border-dashed: #3a4654;
 
-  --text-strong: #f4f6f8;
-  --text: #d5dae1;
-  --text-muted: #9098a5;
-  --text-faint: #646c79;
+  --text-strong: #eef2f7;
+  --text: #c2cbd6;
+  --text-muted: #8b95a4;
+  --text-faint: #5e6776;
 
-  --accent: #7c75ff;
-  --accent-hover: #9089ff;
-  --accent-soft: #221f3d;
-  --accent-contrast: #0b0d10;
-  --focus-ring: rgba(124, 117, 255, 0.55);
+  --accent: #7c8bff;
+  --accent-hover: #93a0ff;
+  --accent-soft: #20264a;
+  --accent-contrast: #0d1017;
+  --focus-ring: rgba(124, 139, 255, 0.5);
+  --brand-gradient: linear-gradient(135deg, #7c8bff 0%, #a78bfa 100%);
 
-  --success: #3bd489;
-  --success-soft: #0e2a1e;
+  --success: #34d399;
+  --success-soft: #0f2a20;
   --warning: #f5c24b;
-  --warning-soft: #2e2410;
-  --danger: #ff6b7a;
-  --danger-soft: #311419;
-  --info: #5ba3ff;
-  --info-soft: #0e2138;
+  --warning-soft: #2e2510;
+  --danger: #fb7185;
+  --danger-soft: #311a20;
+  --info: #60a5fa;
+  --info-soft: #102438;
 
-  --track: #22272f;
-  --overlay: rgba(0, 0, 0, 0.62);
-  --skeleton-base: #1c2128;
-  --shadow-color: 0 0% 0%;
+  --track: #232b36;
+  --overlay: rgba(2, 4, 8, 0.64);
+  --skeleton-base: #1b222c;
+  --skeleton-sheen: rgba(255, 255, 255, 0.05);
+  --shadow-color: 220 50% 2%;
 
-  --shadow-xs: 0 1px 2px hsl(var(--shadow-color) / 0.5);
-  --shadow-sm: 0 2px 6px hsl(var(--shadow-color) / 0.55);
-  --shadow-lg: 0 16px 40px hsl(var(--shadow-color) / 0.7);
+  --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.5);
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.55), 0 1px 2px rgba(0, 0, 0, 0.4);
+  --shadow-md: 0 6px 18px rgba(0, 0, 0, 0.5);
+  --shadow-lg: 0 20px 50px rgba(0, 0, 0, 0.7);
 }
