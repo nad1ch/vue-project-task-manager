@@ -1,10 +1,12 @@
 <script setup lang="ts">
+import { t } from '@/i18n';
+
 withDefaults(defineProps<{ rows?: number; columns?: number }>(), { rows: 6, columns: 5 });
 </script>
 
 <template>
-  <div class="skeleton" aria-hidden="true">
-    <div v-for="r in rows" :key="r" class="skeleton__row">
+  <div class="skeleton" role="status" :aria-label="t('common.loading')" aria-busy="true">
+    <div v-for="r in rows" :key="r" class="skeleton__row" aria-hidden="true">
       <span v-for="c in columns" :key="c" class="skeleton__cell" />
     </div>
   </div>

@@ -24,6 +24,7 @@ defineEmits<{ retry: [] }>();
   padding: var(--space-7) var(--space-5);
   max-width: 380px;
   margin: 0 auto;
+  animation: error-in var(--dur-slow) var(--ease-standard) both;
 
   &__icon {
     display: grid;
@@ -57,6 +58,23 @@ defineEmits<{ retry: [] }>();
     &:focus-visible {
       @include focus-ring;
     }
+  }
+}
+
+@keyframes error-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .error-state {
+    animation: none;
   }
 }
 </style>

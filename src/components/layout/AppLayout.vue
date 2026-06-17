@@ -10,6 +10,8 @@ import IconButton from '@/components/ui/IconButton.vue';
 import AppIcon, { type IconName } from '@/components/ui/AppIcon.vue';
 import ToastHost from '@/components/feedback/ToastHost.vue';
 import ConfirmDialog from '@/components/ui/ConfirmDialog.vue';
+import AmbientBackground from './AmbientBackground.vue';
+import AppErrorBoundary from './AppErrorBoundary.vue';
 
 const uiPrefs = useUiPrefsStore();
 const { confirm } = useConfirm();
@@ -38,6 +40,7 @@ async function onReset(): Promise<void> {
 
 <template>
   <div class="shell">
+    <AmbientBackground />
     <aside class="shell__sidebar">
       <div class="shell__brand">
         <span class="shell__brand-mark">A</span>
@@ -109,11 +112,13 @@ async function onReset(): Promise<void> {
     </header>
 
     <main class="shell__content">
-      <RouterView v-slot="{ Component }">
-        <Transition name="page" mode="out-in">
-          <component :is="Component" />
-        </Transition>
-      </RouterView>
+      <AppErrorBoundary>
+        <RouterView v-slot="{ Component }">
+          <Transition name="page" mode="out-in">
+            <component :is="Component" />
+          </Transition>
+        </RouterView>
+      </AppErrorBoundary>
     </main>
 
     <ToastHost />
@@ -132,9 +137,15 @@ async function onReset(): Promise<void> {
   min-height: 100vh;
   background: var(--canvas);
   color: var(--text);
+  // Own stacking context so the ambient layer (z-index 0) stays behind the
+  // regions below (z-index 1) and never above teleported overlays.
+  position: relative;
+  isolation: isolate;
 
   &__sidebar {
     grid-area: sidebar;
+    position: relative;
+    z-index: 1;
     display: flex;
     flex-direction: column;
     gap: var(--space-5);
@@ -239,6 +250,8 @@ async function onReset(): Promise<void> {
 
   &__topbar {
     grid-area: topbar;
+    position: relative;
+    z-index: 1;
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -331,6 +344,8 @@ async function onReset(): Promise<void> {
   }
   &__content {
     grid-area: content;
+    position: relative;
+    z-index: 1;
     // Vertical scroll only; horizontal overflow (e.g. Kanban) stays contained
     // to its own internal scroller and never produces a page bottom scrollbar.
     overflow-y: auto;

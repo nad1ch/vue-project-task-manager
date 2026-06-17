@@ -19,7 +19,11 @@ function read<T>(key: string, fallback: T): T {
   try {
     const raw = localStorage.getItem(key);
     if (raw === null) return fallback;
-    return JSON.parse(raw) as T;
+    const parsed = JSON.parse(raw) as T;
+    // Shape guard: entity stores must be arrays. Valid-JSON-but-wrong-shape
+    // (e.g. an object) recovers to the fallback instead of crashing consumers.
+    if (Array.isArray(fallback) && !Array.isArray(parsed)) return fallback;
+    return parsed;
   } catch {
     // Corrupted JSON: degrade to fallback instead of crashing.
     return fallback;

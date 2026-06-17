@@ -147,7 +147,12 @@ export const messages = {
     modal: { close: 'Close dialog' },
     notFound: {
       title: 'Page not found',
-      hint: 'The page you are looking for does not exist.',
+      hint: 'This route does not exist or was moved.',
+    },
+    errorBoundary: {
+      title: 'Something went wrong',
+      text: 'An unexpected error interrupted this view. You can reload the page or head back to your projects.',
+      reload: 'Reload page',
     },
     datePicker: {
       placeholder: 'Select a date',
@@ -321,7 +326,12 @@ export const messages = {
     modal: { close: 'Закрити діалог' },
     notFound: {
       title: 'Сторінку не знайдено',
-      hint: 'Сторінка, яку ви шукаєте, не існує.',
+      hint: 'Цього маршруту не існує або його було переміщено.',
+    },
+    errorBoundary: {
+      title: 'Сталася помилка',
+      text: 'Неочікувана помилка перервала цей екран. Перезавантажте сторінку або поверніться до проєктів.',
+      reload: 'Перезавантажити',
     },
     datePicker: {
       placeholder: 'Оберіть дату',
