@@ -18,6 +18,8 @@ export default defineConfigWithVueTs(
     rules: {
       '@typescript-eslint/no-explicit-any': 'error',
       'vue/multi-word-component-names': ['error', { ignores: ['App'] }],
+      // Optional props are expressed through the TS prop types; defaults are not required.
+      'vue/require-default-prop': 'off',
     },
   },
   skipFormatting,

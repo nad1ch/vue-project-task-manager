@@ -24,6 +24,13 @@ export interface SortDescriptor<K extends string> {
   direction: SortDirection;
 }
 
+export interface TableColumn<K extends string> {
+  key: K;
+  label: string;
+  sortable?: boolean;
+  align?: 'left' | 'right' | 'center';
+}
+
 export interface ProjectFilters {
   search: string;
   status: ProjectStatus | 'all';
