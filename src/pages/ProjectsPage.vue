@@ -9,9 +9,11 @@ import { useTableSort } from '@/composables/useTableSort';
 import { useDebounceFn } from '@/composables/useDebounceFn';
 import { useConfirm } from '@/composables/useConfirm';
 import { compareDates, compareNumbers, compareStrings, type Comparator } from '@/lib/compare';
-import { formatDate } from '@/lib/date';
+import { useDates } from '@/composables/useDates';
 import { DEBOUNCE_MS, PROJECT_STATUS_META } from '@/constants';
 import { RouteNames } from '@/router/routeNames';
+import { t } from '@/i18n';
+import { localizeApiError } from '@/stores/localizeApiError';
 import {
   ProjectStatus,
   type CreateProjectDto,
@@ -41,19 +43,20 @@ const { confirm } = useConfirm();
 
 const { items, loaded, isLoading, hasError, error } = storeToRefs(projectsStore);
 const counts = computed(() => tasksStore.countByProjectId);
+const { formatDate } = useDates();
 
 onMounted(() => {
   void projectsStore.load();
   void tasksStore.loadAll();
 });
 
-const columns: TableColumn<ProjectColumnKey>[] = [
-  { key: 'id', label: 'ID', sortable: true },
-  { key: 'name', label: 'Name', sortable: true },
-  { key: 'tasksCount', label: 'Tasks', sortable: true, align: 'right' },
-  { key: 'status', label: 'Status', sortable: true },
-  { key: 'createdAt', label: 'Created', sortable: true },
-];
+const columns = computed<TableColumn<ProjectColumnKey>[]>(() => [
+  { key: 'id', label: t('projects.colId'), sortable: true },
+  { key: 'name', label: t('projects.colName'), sortable: true },
+  { key: 'tasksCount', label: t('projects.colTasks'), sortable: true, align: 'right' },
+  { key: 'status', label: t('projects.colStatus'), sortable: true },
+  { key: 'createdAt', label: t('projects.colCreated'), sortable: true },
+]);
 
 const comparators: Record<ProjectColumnKey, Comparator<Project>> = {
   id: (a, b) => compareNumbers(a.id, b.id),
@@ -94,11 +97,11 @@ const statusFilter = computed({
   get: () => uiPrefs.projectFilters.status,
   set: (value: string) => uiPrefs.setProjectFilters({ status: value as ProjectStatus | 'all' }),
 });
-const statusFilterOptions = [
-  { value: 'all', label: 'All statuses' },
-  { value: ProjectStatus.Active, label: PROJECT_STATUS_META[ProjectStatus.Active].label },
-  { value: ProjectStatus.Archived, label: PROJECT_STATUS_META[ProjectStatus.Archived].label },
-];
+const statusFilterOptions = computed(() => [
+  { value: 'all', label: t('common.allStatuses') },
+  { value: ProjectStatus.Active, label: t('projectStatus.active') },
+  { value: ProjectStatus.Archived, label: t('projectStatus.archived') },
+]);
 
 // --- modal / CRUD ---
 const modalOpen = ref(false);
@@ -140,9 +143,9 @@ async function onSubmit(dto: CreateProjectDto): Promise<void> {
 
 async function onDelete(project: Project): Promise<void> {
   const confirmed = await confirm({
-    title: 'Delete project',
-    message: `Delete "${project.name}" and all of its tasks? This cannot be undone.`,
-    confirmLabel: 'Delete',
+    title: t('projects.deleteTitle'),
+    message: t('projects.deleteMessage', { name: project.name }),
+    confirmLabel: t('projects.deleteConfirm'),
     tone: 'danger',
   });
   if (confirmed) await projectsStore.remove(project.id);
@@ -171,20 +174,20 @@ const showNoMatch = computed(() => items.value.length > 0 && filtered.value.leng
 
 <template>
   <section class="projects">
-    <PageHeader title="Projects" :subtitle="`${items.length} project${items.length === 1 ? '' : 's'}`">
+    <PageHeader :title="t('projects.title')" :subtitle="t('projects.subtitle', { count: items.length })">
       <template #actions>
-        <BaseButton variant="primary" @click="openCreate"><AppIcon name="plus" :size="16" />New project</BaseButton>
+        <BaseButton variant="primary" @click="openCreate"><AppIcon name="plus" :size="16" />{{ t('projects.new') }}</BaseButton>
       </template>
     </PageHeader>
 
     <div class="card">
-      <TableToolbar :count="filtered.length" :total="items.length" noun="projects">
+      <TableToolbar :summary="t('projects.resultCount', { count: filtered.length, total: items.length })">
         <template #filters>
           <div class="filter filter--search">
-            <BaseInput id="project-search" v-model="searchText" label="Search" placeholder="Search by name…" />
+            <BaseInput id="project-search" v-model="searchText" :label="t('common.search')" :placeholder="t('projects.searchPlaceholder')" />
           </div>
           <div class="filter">
-            <BaseSelect id="project-status-filter" v-model="statusFilter" label="Status" :options="statusFilterOptions" />
+            <BaseSelect id="project-status-filter" v-model="statusFilter" :label="t('common.status')" :options="statusFilterOptions" />
           </div>
         </template>
       </TableToolbar>
@@ -192,27 +195,28 @@ const showNoMatch = computed(() => items.value.length > 0 && filtered.value.leng
       <TableSkeleton v-if="showSkeleton" :columns="5" />
       <ErrorState
         v-else-if="showError"
-        :message="error?.message"
+        :title="t('common.somethingWrong')"
+        :message="error ? localizeApiError(error) : undefined"
         @retry="projectsStore.load(true)"
       />
       <EmptyState
         v-else-if="showEmpty"
         icon="projects"
-        title="No projects yet"
-        description="Create your first project to start tracking work."
+        :title="t('projects.emptyTitle')"
+        :description="t('projects.emptyDesc')"
       >
         <template #actions>
-          <BaseButton variant="primary" @click="openCreate"><AppIcon name="plus" :size="16" />New project</BaseButton>
+          <BaseButton variant="primary" @click="openCreate"><AppIcon name="plus" :size="16" />{{ t('projects.new') }}</BaseButton>
         </template>
       </EmptyState>
       <EmptyState
         v-else-if="showNoMatch"
         icon="search"
-        title="No projects match your filters"
-        description="Try adjusting the search or status filter."
+        :title="t('projects.noMatchTitle')"
+        :description="t('projects.noMatchDesc')"
       >
         <template #actions>
-          <BaseButton variant="secondary" @click="onClearFilters">Clear filters</BaseButton>
+          <BaseButton variant="secondary" @click="onClearFilters">{{ t('common.clearFilters') }}</BaseButton>
         </template>
       </EmptyState>
 
@@ -237,16 +241,16 @@ const showNoMatch = computed(() => items.value.length > 0 && filtered.value.leng
           <td class="dt-cell--right"><span class="tabular">{{ counts[project.id] ?? 0 }}</span></td>
           <td>
             <StatusBadge
-              :label="PROJECT_STATUS_META[project.status].label"
+              :label="t('projectStatus.' + project.status)"
               :tone="PROJECT_STATUS_META[project.status].tone"
             />
           </td>
           <td><span class="tabular muted">{{ formatDate(project.createdAt) }}</span></td>
           <td class="dt-cell--right" @click.stop>
             <div class="row-actions">
-              <IconButton label="Open project" @click="goToProject(project)"><AppIcon name="chevron-right" :size="16" /></IconButton>
-              <IconButton label="Edit project" @click="openEdit(project)"><AppIcon name="pencil" :size="16" /></IconButton>
-              <IconButton label="Delete project" danger @click="onDelete(project)"><AppIcon name="trash" :size="16" /></IconButton>
+              <IconButton :label="t('projects.open')" @click="goToProject(project)"><AppIcon name="chevron-right" :size="16" /></IconButton>
+              <IconButton :label="t('projects.edit')" @click="openEdit(project)"><AppIcon name="pencil" :size="16" /></IconButton>
+              <IconButton :label="t('projects.remove')" danger @click="onDelete(project)"><AppIcon name="trash" :size="16" /></IconButton>
             </div>
           </td>
           </tr>

@@ -2,6 +2,7 @@ import { computed } from 'vue';
 import { useProjectsStore } from '@/stores/useProjectsStore';
 import { useTasksStore } from '@/stores/useTasksStore';
 import { isOverdue } from '@/lib/date';
+import { t as i18nT } from '@/i18n';
 import { ProjectStatus, TaskStatus, type Project, type Task } from '@/types';
 
 export function useDashboardStats() {
@@ -43,7 +44,7 @@ export function useDashboardStats() {
       .slice(0, 5)
       .map((task) => ({
         task,
-        projectName: projectsStore.projectById(task.projectId)?.name ?? 'Unknown project',
+        projectName: projectsStore.projectById(task.projectId)?.name ?? i18nT('dashboard.unknownProject'),
       }));
   });
 

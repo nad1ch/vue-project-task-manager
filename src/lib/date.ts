@@ -40,9 +40,9 @@ export function isOverdue(dueDate: string, status: TaskStatusType): boolean {
   return status !== TaskStatus.Done && isPastDate(dueDate);
 }
 
-export function formatDate(value: string): string {
+export function formatDate(value: string, localeTag = 'en-GB'): string {
   if (!isValidDateString(value)) return '—';
-  return new Intl.DateTimeFormat('en-GB', {
+  return new Intl.DateTimeFormat(localeTag, {
     year: 'numeric',
     month: 'short',
     day: '2-digit',

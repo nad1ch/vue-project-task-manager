@@ -1,11 +1,14 @@
 <script setup lang="ts">
-import { reactive, watchEffect } from 'vue';
+import { computed, reactive, watchEffect } from 'vue';
 import { VueDraggable } from 'vue-draggable-plus';
 import { TaskStatus, type Task, type TaskStatus as TaskStatusType } from '@/types';
 import { TASK_STATUS_META } from '@/constants';
+import { t } from '@/i18n';
 import { useTasksStore } from '@/stores/useTasksStore';
 import KanbanColumn from './KanbanColumn.vue';
 import KanbanCard from './KanbanCard.vue';
+
+const dropLabel = computed(() => `"${t('kanban.dropHere')}"`);
 
 interface DragEventLike {
   oldIndex?: number;
@@ -49,7 +52,7 @@ function onAdd(status: TaskStatusType, event: DragEventLike): void {
     <KanbanColumn
       v-for="status in COLUMNS"
       :key="status"
-      :label="TASK_STATUS_META[status].label"
+      :label="t('taskStatus.' + status)"
       :tone="TASK_STATUS_META[status].tone"
       :count="board[status].length"
       @add="emit('create', status)"
@@ -57,6 +60,7 @@ function onAdd(status: TaskStatusType, event: DragEventLike): void {
       <VueDraggable
         v-model="board[status]"
         class="kanban__list"
+        :style="{ '--drop-label': dropLabel }"
         :group="{ name: 'tasks' }"
         :animation="150"
         :disabled="!dndEnabled"
@@ -81,7 +85,11 @@ function onAdd(status: TaskStatusType, event: DragEventLike): void {
 .kanban {
   display: flex;
   gap: var(--space-4);
+  // Internal horizontal scroll only; never expands the page width.
   overflow-x: auto;
+  overscroll-behavior-x: contain;
+  min-width: 0;
+  max-width: 100%;
   padding-bottom: var(--space-3);
   align-items: flex-start;
   min-height: 360px;
@@ -93,7 +101,7 @@ function onAdd(status: TaskStatusType, event: DragEventLike): void {
   min-height: 80px;
 
   &:empty::after {
-    content: 'Drop tasks here';
+    content: var(--drop-label, 'Drop tasks here');
     display: grid;
     place-items: center;
     height: 72px;

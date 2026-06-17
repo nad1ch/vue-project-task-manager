@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { nextTick, onBeforeUnmount, ref, watch } from 'vue';
+import { t } from '@/i18n';
 
 const props = withDefaults(defineProps<{ open: boolean; title: string; size?: 'sm' | 'md' }>(), {
   size: 'md',
@@ -73,7 +74,7 @@ onBeforeUnmount(() => {
         >
           <header class="modal__header">
             <h2 class="modal__title">{{ title }}</h2>
-            <button type="button" class="modal__close" aria-label="Close dialog" @click="emit('close')">
+            <button type="button" class="modal__close" :aria-label="t('modal.close')" @click="emit('close')">
               ✕
             </button>
           </header>

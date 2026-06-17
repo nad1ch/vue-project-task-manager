@@ -29,6 +29,8 @@ withDefaults(defineProps<{ title: string; description?: string; icon?: IconName 
   padding: var(--space-7) var(--space-5);
   max-width: 400px;
   margin: 0 auto;
+  // Subtle entrance; disabled under prefers-reduced-motion (global reset rule).
+  animation: empty-in var(--dur-slow) var(--ease-standard) both;
 
   &__icon {
     display: grid;
@@ -53,6 +55,17 @@ withDefaults(defineProps<{ title: string; description?: string; icon?: IconName 
     margin-top: var(--space-3);
     display: flex;
     gap: var(--space-2);
+  }
+}
+
+@keyframes empty-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
 }
 </style>

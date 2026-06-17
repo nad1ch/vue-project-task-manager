@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import type { Tone } from '@/types';
+import { t } from '@/i18n';
 
 defineProps<{ label: string; tone: Tone; count: number }>();
 defineEmits<{ add: [] }>();
@@ -15,7 +16,7 @@ defineEmits<{ add: [] }>();
     <div class="kcol__body">
       <slot />
     </div>
-    <button type="button" class="kcol__add" @click="$emit('add')">+ Add task</button>
+    <button type="button" class="kcol__add" @click="$emit('add')">+ {{ t('kanban.addTask') }}</button>
   </section>
 </template>
 

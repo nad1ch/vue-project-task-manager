@@ -1,6 +1,8 @@
 <script setup lang="ts">
-import { formatDate, isOverdue } from '@/lib/date';
+import { isOverdue } from '@/lib/date';
 import { TASK_STATUS_META } from '@/constants';
+import { t } from '@/i18n';
+import { useDates } from '@/composables/useDates';
 import type { Task } from '@/types';
 import StatusBadge from '@/components/ui/StatusBadge.vue';
 import IconButton from '@/components/ui/IconButton.vue';
@@ -8,6 +10,8 @@ import AppIcon from '@/components/ui/AppIcon.vue';
 
 defineProps<{ task: Task; draggable?: boolean }>();
 defineEmits<{ edit: []; delete: [] }>();
+
+const { formatDate } = useDates();
 </script>
 
 <template>
@@ -16,10 +20,10 @@ defineEmits<{ edit: []; delete: [] }>();
     <td><span class="task-title">{{ task.title }}</span></td>
     <td>
       <span v-if="task.assignee">{{ task.assignee }}</span>
-      <span v-else class="muted">Unassigned</span>
+      <span v-else class="muted">{{ t('details.unassigned') }}</span>
     </td>
     <td>
-      <StatusBadge :label="TASK_STATUS_META[task.status].label" :tone="TASK_STATUS_META[task.status].tone" />
+      <StatusBadge :label="t('taskStatus.' + task.status)" :tone="TASK_STATUS_META[task.status].tone" />
     </td>
     <td>
       <span class="tabular" :class="{ overdue: isOverdue(task.dueDate, task.status) }">
@@ -28,8 +32,8 @@ defineEmits<{ edit: []; delete: [] }>();
     </td>
     <td class="dt-cell--right" @click.stop>
       <div class="row-actions">
-        <IconButton label="Edit task" @click="$emit('edit')"><AppIcon name="pencil" :size="16" /></IconButton>
-        <IconButton label="Delete task" danger @click="$emit('delete')"><AppIcon name="trash" :size="16" /></IconButton>
+        <IconButton :label="t('details.edit')" @click="$emit('edit')"><AppIcon name="pencil" :size="16" /></IconButton>
+        <IconButton :label="t('details.remove')" danger @click="$emit('delete')"><AppIcon name="trash" :size="16" /></IconButton>
       </div>
     </td>
   </tr>

@@ -3,8 +3,10 @@ import { computed, ref } from 'vue';
 import { ApiError, normalizeError } from '@/api';
 import { projectService } from '@/services/projectService';
 import { ProjectStatus, type CreateProjectDto, type Project, type UpdateProjectDto } from '@/types';
+import { t } from '@/i18n';
 import { useToastStore } from './useToastStore';
 import { useTasksStore } from './useTasksStore';
+import { localizeApiError } from './localizeApiError';
 
 type LoadStatus = 'idle' | 'loading' | 'success' | 'error';
 
@@ -48,7 +50,7 @@ export const useProjectsStore = defineStore('projects', () => {
       const err = normalizeError(e);
       error.value = err;
       status.value = 'error';
-      useToastStore().error(err.message);
+      useToastStore().error(localizeApiError(err));
     }
   }
 
@@ -56,10 +58,10 @@ export const useProjectsStore = defineStore('projects', () => {
     try {
       const created = await projectService.create(dto);
       items.value = [created, ...items.value];
-      useToastStore().success('Project created');
+      useToastStore().success(t('toast.projectCreated'));
       return created;
     } catch (e) {
-      useToastStore().error(normalizeError(e).message);
+      useToastStore().error(localizeApiError(normalizeError(e)));
       return null;
     }
   }
@@ -71,11 +73,11 @@ export const useProjectsStore = defineStore('projects', () => {
     try {
       const updated = await projectService.update(id, dto);
       items.value = items.value.map((p) => (p.id === id ? updated : p));
-      useToastStore().success('Project updated');
+      useToastStore().success(t('toast.projectUpdated'));
       return updated;
     } catch (e) {
       if (snapshot) items.value = items.value.map((p) => (p.id === id ? snapshot : p));
-      useToastStore().error(normalizeError(e).message);
+      useToastStore().error(localizeApiError(normalizeError(e)));
       return null;
     } finally {
       setPending(id, false);
@@ -88,11 +90,11 @@ export const useProjectsStore = defineStore('projects', () => {
     try {
       await projectService.remove(id);
       useTasksStore().handleProjectRemoved(id);
-      useToastStore().success('Project deleted');
+      useToastStore().success(t('toast.projectDeleted'));
       return true;
     } catch (e) {
       items.value = snapshot;
-      useToastStore().error(normalizeError(e).message);
+      useToastStore().error(localizeApiError(normalizeError(e)));
       return false;
     }
   }

@@ -9,11 +9,8 @@ const assigneeSchema = z.preprocess(
 );
 
 const baseShape = {
-  title: z
-    .string()
-    .trim()
-    .min(3, 'Title must be at least 3 characters')
-    .max(120, 'Title must be at most 120 characters'),
+  // Messages are i18n keys, translated where displayed / when an ApiError is built.
+  title: z.string().trim().min(3, 'errors.taskTitleMin').max(120, 'errors.taskTitleMax'),
   status: z.enum(['todo', 'in_progress', 'done']),
   assignee: assigneeSchema,
 };
@@ -23,8 +20,8 @@ export const taskCreateSchema = z.object({
   ...baseShape,
   dueDate: z
     .string()
-    .refine(isValidDateString, 'A valid due date is required')
-    .refine((value) => !isPastDate(value), 'Due date must be today or later'),
+    .refine(isValidDateString, 'errors.taskDueValid')
+    .refine((value) => !isPastDate(value), 'errors.taskDuePast'),
 });
 
 /**
@@ -33,7 +30,7 @@ export const taskCreateSchema = z.object({
  */
 export const taskEditSchema = z.object({
   ...baseShape,
-  dueDate: z.string().refine(isValidDateString, 'A valid due date is required'),
+  dueDate: z.string().refine(isValidDateString, 'errors.taskDueValid'),
 });
 
 /**
@@ -43,7 +40,7 @@ export const taskEditSchema = z.object({
 export const taskUpdateSchema = z
   .object({
     ...baseShape,
-    dueDate: z.string().refine(isValidDateString, 'A valid due date is required'),
+    dueDate: z.string().refine(isValidDateString, 'errors.taskDueValid'),
     order: z.number().int().min(0),
   })
   .partial();

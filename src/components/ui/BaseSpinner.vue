@@ -1,12 +1,14 @@
 <script setup lang="ts">
-withDefaults(defineProps<{ size?: number; label?: string }>(), { size: 18, label: 'Loading' });
+import { t } from '@/i18n';
+
+const props = withDefaults(defineProps<{ size?: number; label?: string }>(), { size: 18 });
 </script>
 
 <template>
   <span
     class="spinner"
     role="status"
-    :aria-label="label"
+    :aria-label="props.label ?? t('common.loading')"
     :style="{ width: `${size}px`, height: `${size}px` }"
   />
 </template>

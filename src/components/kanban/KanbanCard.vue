@@ -1,10 +1,14 @@
 <script setup lang="ts">
-import { formatDate, isOverdue } from '@/lib/date';
+import { isOverdue } from '@/lib/date';
+import { t } from '@/i18n';
+import { useDates } from '@/composables/useDates';
 import type { Task } from '@/types';
 import AppIcon from '@/components/ui/AppIcon.vue';
 
 defineProps<{ task: Task }>();
 defineEmits<{ edit: []; delete: [] }>();
+
+const { formatDate } = useDates();
 </script>
 
 <template>
@@ -12,14 +16,14 @@ defineEmits<{ edit: []; delete: [] }>();
     <div class="kcard__top">
       <span class="mono kcard__id">#{{ task.id }}</span>
       <div class="kcard__actions">
-        <button type="button" aria-label="Edit task" @click.stop="$emit('edit')"><AppIcon name="pencil" :size="14" /></button>
-        <button type="button" aria-label="Delete task" @click.stop="$emit('delete')"><AppIcon name="trash" :size="14" /></button>
+        <button type="button" :aria-label="t('details.edit')" @click.stop="$emit('edit')"><AppIcon name="pencil" :size="14" /></button>
+        <button type="button" :aria-label="t('details.remove')" @click.stop="$emit('delete')"><AppIcon name="trash" :size="14" /></button>
       </div>
     </div>
     <p class="kcard__title">{{ task.title }}</p>
     <div class="kcard__meta">
       <span class="kcard__assignee" :class="{ 'kcard__assignee--none': !task.assignee }">
-        {{ task.assignee ?? 'Unassigned' }}
+        {{ task.assignee ?? t('details.unassigned') }}
       </span>
       <span class="kcard__due" :class="{ 'kcard__due--overdue': isOverdue(task.dueDate, task.status) }">
         {{ formatDate(task.dueDate) }}

@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import BaseModal from '@/components/ui/BaseModal.vue';
 import TaskForm, { type TaskFormValues } from './TaskForm.vue';
+import { t } from '@/i18n';
 import type { TaskStatus } from '@/types';
 
 defineProps<{
@@ -13,7 +14,7 @@ const emit = defineEmits<{ submit: [TaskFormValues]; close: [] }>();
 </script>
 
 <template>
-  <BaseModal :open="open" :title="mode === 'create' ? 'New task' : 'Edit task'" @close="emit('close')">
+  <BaseModal :open="open" :title="mode === 'create' ? t('taskForm.newTitle') : t('taskForm.editTitle')" @close="emit('close')">
     <TaskForm
       :mode="mode"
       :submitting="submitting"

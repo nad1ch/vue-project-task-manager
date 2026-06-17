@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import BaseModal from '@/components/ui/BaseModal.vue';
 import ProjectForm from './ProjectForm.vue';
+import { t } from '@/i18n';
 import type { CreateProjectDto, ProjectStatus } from '@/types';
 
 defineProps<{
@@ -15,7 +16,7 @@ const emit = defineEmits<{ submit: [CreateProjectDto]; close: [] }>();
 <template>
   <BaseModal
     :open="open"
-    :title="mode === 'create' ? 'New project' : 'Edit project'"
+    :title="mode === 'create' ? t('projectForm.newTitle') : t('projectForm.editTitle')"
     @close="emit('close')"
   >
     <ProjectForm

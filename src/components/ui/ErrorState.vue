@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { t } from '@/i18n';
+
 defineProps<{ title?: string; message?: string }>();
 defineEmits<{ retry: [] }>();
 </script>
@@ -6,9 +8,9 @@ defineEmits<{ retry: [] }>();
 <template>
   <div class="error-state" role="alert">
     <div class="error-state__icon" aria-hidden="true">!</div>
-    <h3 class="error-state__title">{{ title ?? 'Something went wrong' }}</h3>
+    <h3 class="error-state__title">{{ title ?? t('common.somethingWrong') }}</h3>
     <p v-if="message" class="error-state__msg">{{ message }}</p>
-    <button type="button" class="error-state__retry" @click="$emit('retry')">Try again</button>
+    <button type="button" class="error-state__retry" @click="$emit('retry')">{{ t('common.tryAgain') }}</button>
   </div>
 </template>
 

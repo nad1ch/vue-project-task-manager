@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed, onBeforeUnmount, onMounted, ref } from 'vue';
+import { t } from '@/i18n';
 import AppIcon from './AppIcon.vue';
 
 export interface SelectOption {
@@ -26,7 +27,7 @@ const open = ref(false);
 const activeIndex = ref(-1);
 
 const selectedIndex = computed(() => props.options.findIndex((o) => o.value === props.modelValue));
-const selectedLabel = computed(() => props.options[selectedIndex.value]?.label ?? 'Select…');
+const selectedLabel = computed(() => props.options[selectedIndex.value]?.label ?? t('common.select'));
 const listboxId = computed(() => `${props.id}-listbox`);
 
 function openMenu(): void {

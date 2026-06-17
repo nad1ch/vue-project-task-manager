@@ -1,5 +1,5 @@
 <script setup lang="ts">
-defineProps<{ count: number; total: number; noun?: string }>();
+defineProps<{ summary: string }>();
 </script>
 
 <template>
@@ -8,9 +8,7 @@ defineProps<{ count: number; total: number; noun?: string }>();
       <slot name="filters" />
     </div>
     <div class="toolbar__right">
-      <span class="toolbar__count">
-        {{ count }} of {{ total }} {{ noun ?? 'items' }}
-      </span>
+      <span class="toolbar__count">{{ summary }}</span>
       <slot name="actions" />
     </div>
   </div>

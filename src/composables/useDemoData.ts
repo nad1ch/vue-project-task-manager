@@ -1,4 +1,5 @@
 import { db } from '@/mock';
+import { t } from '@/i18n';
 import { useProjectsStore } from '@/stores/useProjectsStore';
 import { useTasksStore } from '@/stores/useTasksStore';
 import { useToastStore } from '@/stores/useToastStore';
@@ -10,7 +11,7 @@ export function useDemoData() {
     const projects = useProjectsStore();
     const tasks = useTasksStore();
     await Promise.all([projects.load(true), tasks.loadAll(true)]);
-    useToastStore().success('Demo data reset to defaults');
+    useToastStore().success(t('toast.demoReset'));
   }
 
   return { reset };

@@ -1,12 +1,15 @@
 <script setup lang="ts">
+import { computed } from 'vue';
 import { useField, useForm } from 'vee-validate';
 import { toTypedSchema } from '@vee-validate/zod';
 import { taskCreateSchema, taskEditSchema } from '@/lib/validation/taskSchema';
-import { ASSIGNEES, TASK_STATUS_META } from '@/constants';
+import { ASSIGNEES } from '@/constants';
 import { TaskStatus, type TaskStatus as TaskStatusType } from '@/types';
 import { toDateInputValue, todayInputValue } from '@/lib/date';
+import { t } from '@/i18n';
 import BaseInput from '@/components/ui/BaseInput.vue';
 import BaseSelect from '@/components/ui/BaseSelect.vue';
+import BaseDatePicker from '@/components/ui/BaseDatePicker.vue';
 import BaseButton from '@/components/ui/BaseButton.vue';
 
 export interface TaskFormValues {
@@ -23,15 +26,15 @@ const props = defineProps<{
 }>();
 const emit = defineEmits<{ submit: [TaskFormValues]; cancel: [] }>();
 
-const statusOptions = [
-  { value: TaskStatus.Todo, label: TASK_STATUS_META[TaskStatus.Todo].label },
-  { value: TaskStatus.InProgress, label: TASK_STATUS_META[TaskStatus.InProgress].label },
-  { value: TaskStatus.Done, label: TASK_STATUS_META[TaskStatus.Done].label },
-];
-const assigneeOptions = [
-  { value: '', label: 'Unassigned' },
+const statusOptions = computed(() => [
+  { value: TaskStatus.Todo, label: t('taskStatus.todo') },
+  { value: TaskStatus.InProgress, label: t('taskStatus.in_progress') },
+  { value: TaskStatus.Done, label: t('taskStatus.done') },
+]);
+const assigneeOptions = computed(() => [
+  { value: '', label: t('taskForm.unassigned') },
   ...ASSIGNEES.map((name) => ({ value: name, label: name })),
-];
+]);
 
 const validationSchema = toTypedSchema(props.mode === 'create' ? taskCreateSchema : taskEditSchema);
 
@@ -67,31 +70,30 @@ const onSubmit = handleSubmit((values) => {
     <BaseInput
       id="task-title"
       v-model="title"
-      label="Title"
-      placeholder="e.g. Implement login form"
+      :label="t('taskForm.title')"
+      :placeholder="t('taskForm.titlePlaceholder')"
       required
-      :error="titleError"
+      :error="titleError ? t(titleError) : undefined"
       @blur="titleBlur"
     />
     <div class="form__row">
-      <BaseSelect id="task-status" v-model="status" label="Status" required :options="statusOptions" />
-      <BaseInput
+      <BaseSelect id="task-status" v-model="status" :label="t('taskForm.status')" required :options="statusOptions" />
+      <BaseDatePicker
         id="task-due"
         v-model="dueDate"
-        label="Due date"
-        type="date"
+        :label="t('taskForm.due')"
         required
-        :min="minDate"
-        :error="dueDateError"
+        :min-date="minDate"
+        :error="dueDateError ? t(dueDateError) : undefined"
         @blur="dueDateBlur"
       />
     </div>
-    <BaseSelect id="task-assignee" v-model="assignee" label="Assignee" :options="assigneeOptions" />
+    <BaseSelect id="task-assignee" v-model="assignee" :label="t('taskForm.assignee')" :options="assigneeOptions" />
 
     <div class="form__actions">
-      <BaseButton variant="ghost" type="button" @click="emit('cancel')">Cancel</BaseButton>
+      <BaseButton variant="ghost" type="button" @click="emit('cancel')">{{ t('common.cancel') }}</BaseButton>
       <BaseButton variant="primary" type="submit" :loading="submitting">
-        {{ mode === 'create' ? 'Create task' : 'Save changes' }}
+        {{ mode === 'create' ? t('taskForm.submitCreate') : t('taskForm.submitSave') }}
       </BaseButton>
     </div>
   </form>

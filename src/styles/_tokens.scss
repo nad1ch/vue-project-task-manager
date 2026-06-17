@@ -46,6 +46,11 @@
   --skeleton-sheen: rgba(255, 255, 255, 0.6);
   --shadow-color: 222 32% 22%;
 
+  // Scrollbars
+  --scrollbar-track: transparent;
+  --scrollbar-thumb: #cdd3dc;
+  --scrollbar-thumb-hover: #b3bcc8;
+
   // Spacing (8px grid, 4px sub-grid)
   --space-1: 4px;
   --space-2: 8px;
@@ -152,6 +157,10 @@
   --skeleton-base: #1b222c;
   --skeleton-sheen: rgba(255, 255, 255, 0.05);
   --shadow-color: 220 50% 2%;
+
+  --scrollbar-track: transparent;
+  --scrollbar-thumb: #39434f;
+  --scrollbar-thumb-hover: #4b596a;
 
   --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.5);
   --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.55), 0 1px 2px rgba(0, 0, 0, 0.4);

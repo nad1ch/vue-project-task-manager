@@ -13,6 +13,14 @@ the browser and deploys as a static site.
 
 ---
 
+## Preview
+
+Open the **[live demo](https://nad1ch.github.io/vue-project-task-manager/)** — no setup required.
+
+- Browse the **Projects** table, open a project, and switch its tasks between **Table** and **Kanban** views.
+- Toggle **light / dark** from the top bar, and switch the interface language **EN / UA** — the choice persists across reloads.
+- Create a task to see the **custom calendar** date picker and inline validation; everything is stored in your browser, and **Reset demo** restores the seeded data at any time.
+
 ## Features
 
 - **Projects table** — columns `id`, `name`, `tasks count` (derived), `status`, `created`; sort on every column, text filter by name, status filter, resizable columns, create/edit/delete, row click → details.
@@ -22,13 +30,16 @@ the browser and deploys as a static site.
 - **Validation** — `vee-validate` + `zod`; errors on blur and on submit; due date must be today-or-later when creating.
 - **Persistence** — projects/tasks via the mock API, and view mode + sorting + filters + column widths via a separate preferences key. Everything survives a reload.
 - **Dashboard** — KPI cards (projects, open tasks, completed, overdue), a tasks-by-status chart, an upcoming-deadlines list, and a "needs attention" panel — all derived from the stores.
-- **Product polish** — a designed light/dark theme, an inline icon set, one-click **Reset demo data**, toasts, skeletons, icon-led empty/error states, optimistic updates with rollback, and accessibility basics (semantic table with `aria-sort`, focus-trapped modals, labelled controls, status conveyed by text + colour).
+- **Localization** — full **English / Ukrainian** UI via `vue-i18n`: navigation, controls, table headers, empty/error states, validation messages, toasts, confirmations and chart labels all switch locale instantly, and the choice is persisted. Demo seed content stays in English.
+- **Custom controls** — a styled select and an inline **calendar date picker** (no native browser pop-ups), keyboard-operable, click-outside/Esc to close, consistent in light and dark.
+- **Product polish** — a designed light/dark theme, an inline icon set, custom scrollbars, tasteful route/modal/toast motion (with `prefers-reduced-motion` support), one-click **Reset demo data**, toasts, skeletons, icon-led empty/error states, optimistic updates with rollback, and accessibility basics (semantic table with `aria-sort`, focus-trapped modals, labelled controls, status conveyed by text + colour).
 
 ## Tech stack
 
 Vue 3 (Composition API, `<script setup>`) · TypeScript (strict, no `any`) · Vite ·
 Pinia · Vue Router · Axios + `axios-mock-adapter` · `vee-validate` + `zod` ·
-`vue-draggable-plus` · `chart.js` + `vue-chartjs` · SCSS · Vitest + Vue Test Utils.
+`vue-draggable-plus` · `chart.js` + `vue-chartjs` · `vue-i18n` · SCSS ·
+Vitest + Vue Test Utils.
 
 ## Getting started
 

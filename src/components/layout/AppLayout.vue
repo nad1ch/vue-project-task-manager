@@ -4,6 +4,8 @@ import { RouteNames } from '@/router/routeNames';
 import { useUiPrefsStore } from '@/stores/useUiPrefsStore';
 import { useConfirm } from '@/composables/useConfirm';
 import { useDemoData } from '@/composables/useDemoData';
+import { t } from '@/i18n';
+import type { AppLocale } from '@/types';
 import IconButton from '@/components/ui/IconButton.vue';
 import AppIcon, { type IconName } from '@/components/ui/AppIcon.vue';
 import ToastHost from '@/components/feedback/ToastHost.vue';
@@ -13,16 +15,21 @@ const uiPrefs = useUiPrefsStore();
 const { confirm } = useConfirm();
 const { reset } = useDemoData();
 
-const navItems: ReadonlyArray<{ name: string; label: string; icon: IconName }> = [
-  { name: RouteNames.Projects, label: 'Projects', icon: 'projects' },
-  { name: RouteNames.Dashboard, label: 'Dashboard', icon: 'dashboard' },
+const navItems: ReadonlyArray<{ name: string; key: string; icon: IconName }> = [
+  { name: RouteNames.Projects, key: 'projects', icon: 'projects' },
+  { name: RouteNames.Dashboard, key: 'dashboard', icon: 'dashboard' },
+];
+
+const locales: ReadonlyArray<{ value: AppLocale; label: string }> = [
+  { value: 'en', label: 'EN' },
+  { value: 'uk', label: 'UA' },
 ];
 
 async function onReset(): Promise<void> {
   const ok = await confirm({
-    title: 'Reset demo data',
-    message: 'Restore the original seeded projects and tasks? Any changes you made will be discarded.',
-    confirmLabel: 'Reset data',
+    title: t('confirm.resetTitle'),
+    message: t('confirm.resetMessage'),
+    confirmLabel: t('confirm.resetConfirm'),
     tone: 'danger',
   });
   if (ok) await reset();
@@ -36,12 +43,12 @@ async function onReset(): Promise<void> {
         <span class="shell__brand-mark">A</span>
         <span class="shell__brand-text">
           <span class="shell__brand-name">Atlas</span>
-          <span class="shell__brand-sub">Project workspace</span>
+          <span class="shell__brand-sub">{{ t('brand.subtitle') }}</span>
         </span>
       </div>
 
-      <nav class="shell__nav" aria-label="Primary">
-        <span class="shell__nav-label">Menu</span>
+      <nav class="shell__nav" :aria-label="t('nav.menu')">
+        <span class="shell__nav-label">{{ t('nav.menu') }}</span>
         <RouterLink
           v-for="item in navItems"
           :key="item.name"
@@ -49,38 +56,51 @@ async function onReset(): Promise<void> {
           :to="{ name: item.name }"
         >
           <AppIcon :name="item.icon" :size="18" />
-          <span>{{ item.label }}</span>
+          <span>{{ t('nav.' + item.key) }}</span>
         </RouterLink>
       </nav>
 
       <div class="shell__sidebar-foot">
-        <p class="shell__hint">Local demo — data is stored in your browser via a mock API.</p>
+        <p class="shell__hint">{{ t('sidebar.hint') }}</p>
       </div>
     </aside>
 
     <header class="shell__topbar">
       <div class="shell__topbar-left">
-        <nav class="shell__mobile-nav" aria-label="Primary mobile">
+        <nav class="shell__mobile-nav" :aria-label="t('nav.menu')">
           <RouterLink
             v-for="item in navItems"
             :key="item.name"
             class="shell__mobile-link"
             :to="{ name: item.name }"
-            :aria-label="item.label"
+            :aria-label="t('nav.' + item.key)"
           >
             <AppIcon :name="item.icon" :size="18" />
           </RouterLink>
         </nav>
-        <span class="shell__title">Project &amp; Task Manager</span>
+        <span class="shell__title">{{ t('topbar.appName') }}</span>
       </div>
 
       <div class="shell__utils">
+        <div class="shell__lang" role="group" :aria-label="t('topbar.language')">
+          <button
+            v-for="loc in locales"
+            :key="loc.value"
+            type="button"
+            class="shell__lang-btn"
+            :class="{ 'shell__lang-btn--active': uiPrefs.locale === loc.value }"
+            :aria-pressed="uiPrefs.locale === loc.value"
+            @click="uiPrefs.setLocale(loc.value)"
+          >
+            {{ loc.label }}
+          </button>
+        </div>
         <button type="button" class="shell__reset" @click="onReset">
           <AppIcon name="reset" :size="15" />
-          <span class="shell__reset-text">Reset demo</span>
+          <span class="shell__reset-text">{{ t('topbar.resetDemo') }}</span>
         </button>
         <IconButton
-          :label="uiPrefs.theme === 'dark' ? 'Switch to light theme' : 'Switch to dark theme'"
+          :label="uiPrefs.theme === 'dark' ? t('topbar.toLight') : t('topbar.toDark')"
           @click="uiPrefs.toggleTheme()"
         >
           <AppIcon :name="uiPrefs.theme === 'dark' ? 'sun' : 'moon'" :size="17" />
@@ -89,7 +109,11 @@ async function onReset(): Promise<void> {
     </header>
 
     <main class="shell__content">
-      <RouterView />
+      <RouterView v-slot="{ Component }">
+        <Transition name="page" mode="out-in">
+          <component :is="Component" />
+        </Transition>
+      </RouterView>
     </main>
 
     <ToastHost />
@@ -254,6 +278,34 @@ async function onReset(): Promise<void> {
     align-items: center;
     gap: var(--space-2);
   }
+  &__lang {
+    display: inline-flex;
+    padding: 2px;
+    gap: 2px;
+    background: var(--surface-subtle);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+  }
+  &__lang-btn {
+    min-width: 34px;
+    height: 28px;
+    padding: 0 var(--space-2);
+    border-radius: var(--radius-xs);
+    font-size: var(--text-xs);
+    font-weight: var(--weight-semibold);
+    color: var(--text-muted);
+    &:hover {
+      color: var(--text-strong);
+    }
+    &:focus-visible {
+      @include focus-ring;
+    }
+    &--active {
+      background: var(--surface-raised);
+      color: var(--accent);
+      box-shadow: var(--shadow-xs);
+    }
+  }
   &__reset {
     display: inline-flex;
     align-items: center;
@@ -279,8 +331,28 @@ async function onReset(): Promise<void> {
   }
   &__content {
     grid-area: content;
-    overflow: auto;
+    // Vertical scroll only; horizontal overflow (e.g. Kanban) stays contained
+    // to its own internal scroller and never produces a page bottom scrollbar.
+    overflow-y: auto;
+    overflow-x: hidden;
+    min-width: 0;
   }
+}
+
+// Page route transition
+.page-enter-active,
+.page-leave-active {
+  transition:
+    opacity var(--dur-base) var(--ease-standard),
+    transform var(--dur-base) var(--ease-standard);
+}
+.page-enter-from {
+  opacity: 0;
+  transform: translateY(6px);
+}
+.page-leave-to {
+  opacity: 0;
+  transform: translateY(-6px);
 }
 
 @media (max-width: 768px) {
@@ -298,6 +370,13 @@ async function onReset(): Promise<void> {
   }
   .shell__reset-text {
     display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .page-enter-active,
+  .page-leave-active {
+    transition: none;
   }
 }
 </style>

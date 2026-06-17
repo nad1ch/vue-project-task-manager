@@ -1,9 +1,10 @@
 <script setup lang="ts">
+import { computed } from 'vue';
 import { useField, useForm } from 'vee-validate';
 import { toTypedSchema } from '@vee-validate/zod';
 import { projectSchema } from '@/lib/validation/projectSchema';
-import { PROJECT_STATUS_META } from '@/constants';
 import { ProjectStatus, type CreateProjectDto } from '@/types';
+import { t } from '@/i18n';
 import BaseInput from '@/components/ui/BaseInput.vue';
 import BaseTextarea from '@/components/ui/BaseTextarea.vue';
 import BaseSelect from '@/components/ui/BaseSelect.vue';
@@ -16,10 +17,10 @@ const props = defineProps<{
 }>();
 const emit = defineEmits<{ submit: [CreateProjectDto]; cancel: [] }>();
 
-const statusOptions = [
-  { value: ProjectStatus.Active, label: PROJECT_STATUS_META[ProjectStatus.Active].label },
-  { value: ProjectStatus.Archived, label: PROJECT_STATUS_META[ProjectStatus.Archived].label },
-];
+const statusOptions = computed(() => [
+  { value: ProjectStatus.Active, label: t('projectStatus.active') },
+  { value: ProjectStatus.Archived, label: t('projectStatus.archived') },
+]);
 
 const { handleSubmit } = useForm({
   validationSchema: toTypedSchema(projectSchema),
@@ -50,31 +51,31 @@ const onSubmit = handleSubmit((values) => {
     <BaseInput
       id="project-name"
       v-model="name"
-      label="Name"
-      placeholder="e.g. Website Redesign"
+      :label="t('projectForm.name')"
+      :placeholder="t('projectForm.namePlaceholder')"
       required
-      :error="nameError"
+      :error="nameError ? t(nameError) : undefined"
       @blur="nameBlur"
     />
     <BaseTextarea
       id="project-description"
       v-model="description"
-      label="Description"
-      placeholder="Optional — what is this project about?"
-      :error="descriptionError"
+      :label="t('projectForm.description')"
+      :placeholder="t('projectForm.descriptionPlaceholder')"
+      :error="descriptionError ? t(descriptionError) : undefined"
     />
     <BaseSelect
       id="project-status"
       v-model="status"
-      label="Status"
+      :label="t('projectForm.status')"
       required
       :options="statusOptions"
     />
 
     <div class="form__actions">
-      <BaseButton variant="ghost" type="button" @click="emit('cancel')">Cancel</BaseButton>
+      <BaseButton variant="ghost" type="button" @click="emit('cancel')">{{ t('common.cancel') }}</BaseButton>
       <BaseButton variant="primary" type="submit" :loading="submitting">
-        {{ mode === 'create' ? 'Create project' : 'Save changes' }}
+        {{ mode === 'create' ? t('projectForm.submitCreate') : t('projectForm.submitSave') }}
       </BaseButton>
     </div>
   </form>

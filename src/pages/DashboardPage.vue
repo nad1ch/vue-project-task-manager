@@ -5,8 +5,10 @@ import { storeToRefs } from 'pinia';
 import { useProjectsStore } from '@/stores/useProjectsStore';
 import { useTasksStore } from '@/stores/useTasksStore';
 import { useDashboardStats } from '@/composables/useDashboardStats';
-import { formatDate, isOverdue } from '@/lib/date';
+import { useDates } from '@/composables/useDates';
+import { isOverdue } from '@/lib/date';
 import { RouteNames } from '@/router/routeNames';
+import { t } from '@/i18n';
 import PageHeader from '@/components/layout/PageHeader.vue';
 import StatCard from '@/components/dashboard/StatCard.vue';
 import StatusChart from '@/components/dashboard/StatusChart.vue';
@@ -20,6 +22,7 @@ const tasksStore = useTasksStore();
 const { loaded: projectsLoaded } = storeToRefs(projectsStore);
 
 const stats = useDashboardStats();
+const { formatDate } = useDates();
 
 onMounted(() => {
   void projectsStore.load();
@@ -32,36 +35,36 @@ const isEmpty = computed(() => projectsLoaded.value && stats.totalProjects.value
 
 <template>
   <section class="dashboard">
-    <PageHeader title="Overview" subtitle="Your projects and tasks at a glance" />
+    <PageHeader :title="t('dashboard.title')" :subtitle="t('dashboard.subtitle')" />
 
     <TableSkeleton v-if="!isReady" :rows="3" :columns="4" />
 
     <EmptyState
       v-else-if="isEmpty"
       icon="dashboard"
-      title="Nothing to show yet"
-      description="Create your first project to start seeing statistics here."
+      :title="t('dashboard.emptyTitle')"
+      :description="t('dashboard.emptyDesc')"
     >
       <template #actions>
         <RouterLink :to="{ name: RouteNames.Projects }">
-          <BaseButton variant="primary">Go to projects</BaseButton>
+          <BaseButton variant="primary">{{ t('dashboard.goToProjects') }}</BaseButton>
         </RouterLink>
       </template>
     </EmptyState>
 
     <template v-else>
       <div class="dashboard__kpis">
-        <StatCard label="Projects" icon="projects" tone="info" :value="stats.totalProjects.value" :hint="`${stats.activeProjects.value} active`" />
-        <StatCard label="Open tasks" icon="list" tone="neutral" :value="stats.openTasks.value" :hint="`${stats.totalTasks.value} total`" />
-        <StatCard label="Completed" icon="check-circle" tone="success" :value="stats.completedTasks.value" :hint="`${stats.completionRate.value}% completion`" />
-        <StatCard label="Overdue" icon="alert" tone="danger" :value="stats.overdueTasks.value" hint="not done, past due" />
+        <StatCard :label="t('dashboard.kpiProjects')" icon="projects" tone="info" :value="stats.totalProjects.value" :hint="t('dashboard.hintActive', { count: stats.activeProjects.value })" />
+        <StatCard :label="t('dashboard.kpiOpen')" icon="list" tone="neutral" :value="stats.openTasks.value" :hint="t('dashboard.hintTotal', { count: stats.totalTasks.value })" />
+        <StatCard :label="t('dashboard.kpiCompleted')" icon="check-circle" tone="success" :value="stats.completedTasks.value" :hint="t('dashboard.hintCompletion', { percent: stats.completionRate.value })" />
+        <StatCard :label="t('dashboard.kpiOverdue')" icon="alert" tone="danger" :value="stats.overdueTasks.value" :hint="t('dashboard.hintOverdue')" />
       </div>
 
       <div class="dashboard__split">
         <section class="panel panel--chart">
           <header class="panel__head">
-            <h2 class="panel__title">Tasks by status</h2>
-            <span class="panel__sub">{{ stats.totalTasks.value }} tasks</span>
+            <h2 class="panel__title">{{ t('dashboard.tasksByStatus') }}</h2>
+            <span class="panel__sub">{{ t('dashboard.tasksCount', { count: stats.totalTasks.value }) }}</span>
           </header>
           <StatusChart :counts="stats.tasksByStatus.value" />
         </section>
@@ -69,7 +72,7 @@ const isEmpty = computed(() => projectsLoaded.value && stats.totalProjects.value
         <div class="dashboard__column">
           <section class="panel">
             <header class="panel__head">
-              <h2 class="panel__title">Upcoming deadlines</h2>
+              <h2 class="panel__title">{{ t('dashboard.upcoming') }}</h2>
             </header>
             <ul v-if="stats.upcomingDeadlines.value.length > 0" class="deadlines">
               <li v-for="entry in stats.upcomingDeadlines.value" :key="entry.task.id" class="deadlines__item">
@@ -91,12 +94,12 @@ const isEmpty = computed(() => projectsLoaded.value && stats.totalProjects.value
                 </span>
               </li>
             </ul>
-            <p v-else class="panel__empty">No open tasks with deadlines.</p>
+            <p v-else class="panel__empty">{{ t('dashboard.upcomingEmpty') }}</p>
           </section>
 
           <section class="panel">
             <header class="panel__head">
-              <h2 class="panel__title">Needs attention</h2>
+              <h2 class="panel__title">{{ t('dashboard.needsAttention') }}</h2>
             </header>
             <ul v-if="stats.projectsNeedingAttention.value.length > 0" class="attention">
               <li v-for="entry in stats.projectsNeedingAttention.value" :key="entry.project.id" class="attention__item">
@@ -106,10 +109,10 @@ const isEmpty = computed(() => projectsLoaded.value && stats.totalProjects.value
                 >
                   {{ entry.project.name }}
                 </RouterLink>
-                <span class="attention__badge">{{ entry.overdue }} overdue</span>
+                <span class="attention__badge">{{ t('dashboard.overdueBadge', { count: entry.overdue }) }}</span>
               </li>
             </ul>
-            <p v-else class="panel__empty">Nothing overdue — you're on track.</p>
+            <p v-else class="panel__empty">{{ t('dashboard.nothingOverdue') }}</p>
           </section>
         </div>
       </div>

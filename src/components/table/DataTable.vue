@@ -2,6 +2,7 @@
 import { useResizableColumns } from '@/composables/useResizableColumns';
 import type { AriaSort } from '@/composables/useTableSort';
 import type { ColumnWidths, TableColumn } from '@/types';
+import { t } from '@/i18n';
 
 // Non-generic on purpose: the parent renders fully-typed rows via the default
 // slot, so cell typing stays strict in the page while this component owns the
@@ -56,7 +57,7 @@ const { startResize, widthFor } = useResizableColumns<string>({
             />
           </th>
           <th v-if="hasActions" scope="col" class="dt__th dt__th--right">
-            <span class="dt__sr">Actions</span>
+            <span class="dt__sr">{{ t('common.actions') }}</span>
           </th>
         </tr>
       </thead>

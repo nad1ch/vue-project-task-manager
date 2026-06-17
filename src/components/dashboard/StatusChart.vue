@@ -10,7 +10,7 @@ import {
   type ChartOptions,
 } from 'chart.js';
 import { TaskStatus, type TaskStatus as TaskStatusType } from '@/types';
-import { TASK_STATUS_META } from '@/constants';
+import { t } from '@/i18n';
 import { useUiPrefsStore } from '@/stores/useUiPrefsStore';
 
 ChartJS.register(ArcElement, Tooltip, Legend);
@@ -32,11 +32,7 @@ const chartData = computed<ChartData<'doughnut'>>(() => {
   // Reference theme so colours recompute on light/dark switch.
   void uiPrefs.theme;
   return {
-    labels: [
-      TASK_STATUS_META[TaskStatus.Todo].label,
-      TASK_STATUS_META[TaskStatus.InProgress].label,
-      TASK_STATUS_META[TaskStatus.Done].label,
-    ],
+    labels: [t('taskStatus.todo'), t('taskStatus.in_progress'), t('taskStatus.done')],
     datasets: [
       {
         data: [
@@ -83,15 +79,17 @@ const options = computed<ChartOptions<'doughnut'>>(() => {
 
 const summary = computed(
   () =>
-    `Tasks by status: ${props.counts[TaskStatus.Todo]} to do, ` +
-    `${props.counts[TaskStatus.InProgress]} in progress, ${props.counts[TaskStatus.Done]} done.`,
+    `${t('dashboard.tasksByStatus')}: ` +
+    `${t('taskStatus.todo')} ${props.counts[TaskStatus.Todo]}, ` +
+    `${t('taskStatus.in_progress')} ${props.counts[TaskStatus.InProgress]}, ` +
+    `${t('taskStatus.done')} ${props.counts[TaskStatus.Done]}.`,
 );
 </script>
 
 <template>
   <div class="chart" role="img" :aria-label="summary">
     <Doughnut v-if="total > 0" :data="chartData" :options="options" />
-    <p v-else class="chart__empty">No tasks to chart yet.</p>
+    <p v-else class="chart__empty">{{ t('dashboard.chartEmpty') }}</p>
     <p class="chart__sr">{{ summary }}</p>
   </div>
 </template>

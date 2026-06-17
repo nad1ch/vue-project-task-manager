@@ -1,13 +1,14 @@
 <script setup lang="ts">
 import { RouterLink } from 'vue-router';
 import { RouteNames } from '@/router/routeNames';
+import { t } from '@/i18n';
 </script>
 
 <template>
   <section class="page">
-    <h1 class="page__title">Page not found</h1>
-    <p class="page__hint">The page you are looking for does not exist.</p>
-    <RouterLink class="page__link" :to="{ name: RouteNames.Projects }">Back to projects</RouterLink>
+    <h1 class="page__title">{{ t('notFound.title') }}</h1>
+    <p class="page__hint">{{ t('notFound.hint') }}</p>
+    <RouterLink class="page__link" :to="{ name: RouteNames.Projects }">{{ t('details.backToProjects') }}</RouterLink>
   </section>
 </template>
 

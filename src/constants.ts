@@ -55,6 +55,7 @@ export const DEFAULT_TASK_COLUMN_WIDTHS: Required<ColumnWidths<TaskColumnKey>> =
 export const DEFAULT_UI_PREFERENCES: UiPreferences = {
   viewMode: ViewMode.Table,
   theme: 'light',
+  locale: 'en',
   projectSort: null,
   taskSort: null,
   projectFilters: { search: '', status: 'all' },

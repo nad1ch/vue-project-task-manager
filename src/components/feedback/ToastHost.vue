@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { storeToRefs } from 'pinia';
 import { useToastStore } from '@/stores/useToastStore';
+import { t } from '@/i18n';
 
 const toastStore = useToastStore();
 const { items } = storeToRefs(toastStore);
@@ -22,7 +23,7 @@ const { items } = storeToRefs(toastStore);
           <button
             type="button"
             class="toast__close"
-            aria-label="Dismiss notification"
+            :aria-label="t('common.dismiss')"
             @click="toastStore.dismiss(toast.id)"
           >
             ✕

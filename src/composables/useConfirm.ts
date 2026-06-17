@@ -1,4 +1,5 @@
 import { reactive, readonly, type DeepReadonly } from 'vue';
+import { t } from '@/i18n';
 
 export interface ConfirmOptions {
   title: string;
@@ -15,7 +16,7 @@ const state = reactive<ConfirmState>({
   open: false,
   title: '',
   message: '',
-  confirmLabel: 'Confirm',
+  confirmLabel: '',
   tone: 'primary',
 });
 
@@ -26,7 +27,7 @@ export function useConfirm() {
   function confirm(options: ConfirmOptions): Promise<boolean> {
     state.title = options.title;
     state.message = options.message;
-    state.confirmLabel = options.confirmLabel ?? 'Confirm';
+    state.confirmLabel = options.confirmLabel ?? t('common.confirm');
     state.tone = options.tone ?? 'primary';
     state.open = true;
     return new Promise<boolean>((resolve) => {

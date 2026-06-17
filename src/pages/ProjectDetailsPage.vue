@@ -11,8 +11,10 @@ import { useTableSort } from '@/composables/useTableSort';
 import { useConfirm } from '@/composables/useConfirm';
 import { compareDates, compareNumbers, compareStrings, type Comparator } from '@/lib/compare';
 import { countStatusBefore, neighbourStatus } from '@/lib/reorder';
-import { ASSIGNEES, PROJECT_STATUS_META, TASK_STATUS_META } from '@/constants';
+import { ASSIGNEES, PROJECT_STATUS_META } from '@/constants';
 import { RouteNames } from '@/router/routeNames';
+import { t } from '@/i18n';
+import { localizeApiError } from '@/stores/localizeApiError';
 import {
   TaskStatus,
   ViewMode,
@@ -82,13 +84,13 @@ const filteredTasks = computed<Task[]>(() => {
   });
 });
 
-const columns: TableColumn<TaskColumnKey>[] = [
-  { key: 'id', label: 'ID', sortable: true },
-  { key: 'title', label: 'Title', sortable: true },
-  { key: 'assignee', label: 'Assignee', sortable: true },
-  { key: 'status', label: 'Status', sortable: true },
-  { key: 'dueDate', label: 'Due date', sortable: true },
-];
+const columns = computed<TableColumn<TaskColumnKey>[]>(() => [
+  { key: 'id', label: t('details.colId'), sortable: true },
+  { key: 'title', label: t('details.colTitle'), sortable: true },
+  { key: 'assignee', label: t('details.colAssignee'), sortable: true },
+  { key: 'status', label: t('details.colStatus'), sortable: true },
+  { key: 'dueDate', label: t('details.colDue'), sortable: true },
+]);
 
 const comparators: Record<TaskColumnKey, Comparator<Task>> = {
   id: (a, b) => compareNumbers(a.id, b.id),
@@ -142,7 +144,7 @@ function onTableReorder(event: DragEventLike): void {
   if (target !== moved.status) {
     // Table DnD reorders within a status only; status changes belong to the Kanban.
     manualList.value = sortedManual();
-    toastStore.warning('To change a task’s status, use the Kanban board.');
+    toastStore.warning(t('toast.useKanban'));
     return;
   }
   const lane = tasksStore.laneOf(projectId.value, target);
@@ -160,15 +162,15 @@ const statusFilter = computed({
   get: () => uiPrefs.taskFilters.status,
   set: (value: string) => uiPrefs.setTaskFilters({ status: value as TaskStatusType | 'all' }),
 });
-const assigneeFilterOptions = [
-  { value: 'all', label: 'All assignees' },
-  { value: UNASSIGNED, label: 'Unassigned' },
+const assigneeFilterOptions = computed(() => [
+  { value: 'all', label: t('details.allAssignees') },
+  { value: UNASSIGNED, label: t('details.unassigned') },
   ...ASSIGNEES.map((name) => ({ value: name, label: name })),
-];
-const statusFilterOptions = [
-  { value: 'all', label: 'All statuses' },
-  ...Object.values(TaskStatus).map((s) => ({ value: s, label: TASK_STATUS_META[s].label })),
-];
+]);
+const statusFilterOptions = computed(() => [
+  { value: 'all', label: t('common.allStatuses') },
+  ...Object.values(TaskStatus).map((s) => ({ value: s, label: t('taskStatus.' + s) })),
+]);
 
 // --- CRUD ---
 const modalOpen = ref(false);
@@ -214,9 +216,9 @@ async function onSubmit(values: TaskFormValues): Promise<void> {
 
 async function onDelete(task: Task): Promise<void> {
   const confirmed = await confirm({
-    title: 'Delete task',
-    message: `Delete "${task.title}"? This cannot be undone.`,
-    confirmLabel: 'Delete',
+    title: t('details.deleteTitle'),
+    message: t('details.deleteMessage', { name: task.title }),
+    confirmLabel: t('details.deleteConfirm'),
     tone: 'danger',
   });
   if (confirmed) await tasksStore.remove(task.id);
@@ -237,38 +239,38 @@ const showContent = computed(
   <section class="details">
     <RouterLink class="details__back" :to="{ name: RouteNames.Projects }">
       <AppIcon name="arrow-left" :size="15" />
-      <span>Projects</span>
+      <span>{{ t('details.back') }}</span>
     </RouterLink>
 
     <div v-if="notFound">
-      <EmptyState icon="alert" title="Project not found" description="This project may have been deleted.">
+      <EmptyState icon="alert" :title="t('details.notFoundTitle')" :description="t('details.notFoundDesc')">
         <template #actions>
           <RouterLink :to="{ name: RouteNames.Projects }">
-            <BaseButton variant="primary">Back to projects</BaseButton>
+            <BaseButton variant="primary">{{ t('details.backToProjects') }}</BaseButton>
           </RouterLink>
         </template>
       </EmptyState>
     </div>
 
     <template v-else-if="project">
-      <PageHeader :title="project.name" :subtitle="project.description || 'No description'">
+      <PageHeader :title="project.name" :subtitle="project.description || t('details.noDescription')">
         <template #actions>
           <StatusBadge
-            :label="PROJECT_STATUS_META[project.status].label"
+            :label="t('projectStatus.' + project.status)"
             :tone="PROJECT_STATUS_META[project.status].tone"
           />
-          <BaseButton variant="primary" @click="openCreate()"><AppIcon name="plus" :size="16" />New task</BaseButton>
+          <BaseButton variant="primary" @click="openCreate()"><AppIcon name="plus" :size="16" />{{ t('details.newTask') }}</BaseButton>
         </template>
       </PageHeader>
 
       <div class="card">
-        <TableToolbar :count="filteredTasks.length" :total="projectTasks.length" noun="tasks">
+        <TableToolbar :summary="t('details.resultCount', { count: filteredTasks.length, total: projectTasks.length })">
           <template #filters>
             <div class="filter">
               <BaseSelect
                 id="task-assignee-filter"
                 v-model="assigneeFilter"
-                label="Assignee"
+                :label="t('details.assignee')"
                 :options="assigneeFilterOptions"
               />
             </div>
@@ -276,7 +278,7 @@ const showContent = computed(
               <BaseSelect
                 id="task-status-filter"
                 v-model="statusFilter"
-                label="Status"
+                :label="t('common.status')"
                 :options="statusFilterOptions"
               />
             </div>
@@ -287,37 +289,37 @@ const showContent = computed(
         </TableToolbar>
 
         <TableSkeleton v-if="showSkeleton" :columns="5" />
-        <ErrorState v-else-if="showError" :message="tasksError?.message" @retry="tasksStore.loadAll(true)" />
+        <ErrorState
+          v-else-if="showError"
+          :title="t('common.somethingWrong')"
+          :message="tasksError ? localizeApiError(tasksError) : undefined"
+          @retry="tasksStore.loadAll(true)"
+        />
         <EmptyState
           v-else-if="showEmpty"
-          title="No tasks yet"
-          description="Add the first task for this project."
+          :title="t('details.emptyTitle')"
+          :description="t('details.emptyDesc')"
         >
           <template #actions>
-            <BaseButton variant="primary" @click="openCreate()"><AppIcon name="plus" :size="16" />New task</BaseButton>
+            <BaseButton variant="primary" @click="openCreate()"><AppIcon name="plus" :size="16" />{{ t('details.newTask') }}</BaseButton>
           </template>
         </EmptyState>
         <EmptyState
           v-else-if="showNoMatch"
           icon="search"
-          title="No tasks match your filters"
-          description="Try a different assignee or status."
+          :title="t('details.noMatchTitle')"
+          :description="t('details.noMatchDesc')"
         >
           <template #actions>
-            <BaseButton variant="secondary" @click="uiPrefs.clearTaskFilters()">Clear filters</BaseButton>
+            <BaseButton variant="secondary" @click="uiPrefs.clearTaskFilters()">{{ t('common.clearFilters') }}</BaseButton>
           </template>
         </EmptyState>
 
         <template v-else-if="showContent">
           <!-- TABLE VIEW -->
           <template v-if="viewMode === ViewMode.Table">
-            <p v-if="!canDragTable" class="dnd-note">
-              Drag-to-reorder is available in the default order with no active filters. Clear sorting
-              and filters to drag rows.
-            </p>
-            <p v-else class="dnd-note">
-              Drag rows to reorder within a status. Use the Kanban board to change a task’s status.
-            </p>
+            <p v-if="!canDragTable" class="dnd-note">{{ t('details.dndDisabledSort') }}</p>
+            <p v-else class="dnd-note">{{ t('details.dndManualHint') }}</p>
             <DataTable
               :columns="columns"
               :widths="uiPrefs.taskColumnWidths"
@@ -357,9 +359,7 @@ const showContent = computed(
 
           <!-- KANBAN VIEW -->
           <div v-else class="kanban-wrap">
-            <p v-if="!kanbanDndEnabled" class="dnd-note">
-              Drag-and-drop is disabled while filters are active. Clear filters to move cards.
-            </p>
+            <p v-if="!kanbanDndEnabled" class="dnd-note">{{ t('details.dndDisabledFilters') }}</p>
             <KanbanBoard
               :tasks="filteredTasks"
               :project-id="projectId"

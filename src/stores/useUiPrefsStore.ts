@@ -4,6 +4,7 @@ import { DEFAULT_UI_PREFERENCES, STORAGE_KEYS } from '@/constants';
 import { usePersistedRef } from '@/composables/usePersistedRef';
 import {
   SortDirection,
+  type AppLocale,
   type ProjectColumnKey,
   type ProjectFilters,
   type SortDescriptor,
@@ -35,6 +36,7 @@ export const useUiPrefsStore = defineStore('ui-prefs', () => {
 
   const viewMode = computed(() => prefs.value.viewMode);
   const theme = computed(() => prefs.value.theme);
+  const locale = computed(() => prefs.value.locale);
   const projectSort = computed(() => prefs.value.projectSort);
   const taskSort = computed(() => prefs.value.taskSort);
   const projectFilters = computed(() => prefs.value.projectFilters);
@@ -61,6 +63,9 @@ export const useUiPrefsStore = defineStore('ui-prefs', () => {
   }
   function toggleTheme(): void {
     patch({ theme: prefs.value.theme === 'light' ? 'dark' : 'light' });
+  }
+  function setLocale(value: AppLocale): void {
+    patch({ locale: value });
   }
   function setProjectSort(value: SortDescriptor<ProjectColumnKey> | null): void {
     patch({ projectSort: value });
@@ -97,6 +102,7 @@ export const useUiPrefsStore = defineStore('ui-prefs', () => {
     prefs,
     viewMode,
     theme,
+    locale,
     projectSort,
     taskSort,
     projectFilters,
@@ -108,6 +114,7 @@ export const useUiPrefsStore = defineStore('ui-prefs', () => {
     setViewMode,
     setTheme,
     toggleTheme,
+    setLocale,
     setProjectSort,
     toggleProjectSort,
     setTaskSort,

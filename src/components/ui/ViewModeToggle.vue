@@ -1,12 +1,13 @@
 <script setup lang="ts">
 import { ViewMode, type ViewMode as ViewModeType } from '@/types';
+import { t } from '@/i18n';
 
 defineProps<{ modelValue: ViewModeType }>();
 const emit = defineEmits<{ 'update:modelValue': [ViewModeType] }>();
 </script>
 
 <template>
-  <div class="seg" role="group" aria-label="View mode">
+  <div class="seg" role="group" :aria-label="t('details.viewMode')">
     <button
       type="button"
       class="seg__btn"
@@ -14,7 +15,7 @@ const emit = defineEmits<{ 'update:modelValue': [ViewModeType] }>();
       :aria-pressed="modelValue === ViewMode.Table"
       @click="emit('update:modelValue', ViewMode.Table)"
     >
-      Table
+      {{ t('details.viewTable') }}
     </button>
     <button
       type="button"
@@ -23,7 +24,7 @@ const emit = defineEmits<{ 'update:modelValue': [ViewModeType] }>();
       :aria-pressed="modelValue === ViewMode.Kanban"
       @click="emit('update:modelValue', ViewMode.Kanban)"
     >
-      Kanban
+      {{ t('details.viewKanban') }}
     </button>
   </div>
 </template>

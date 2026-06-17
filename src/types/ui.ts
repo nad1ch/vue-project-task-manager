@@ -14,6 +14,8 @@ export type SortDirection = (typeof SortDirection)[keyof typeof SortDirection];
 
 export type ThemeMode = 'light' | 'dark';
 
+export type AppLocale = 'en' | 'uk';
+
 export type Tone = 'neutral' | 'success' | 'info' | 'warning' | 'danger';
 
 export type ProjectColumnKey = 'id' | 'name' | 'tasksCount' | 'status' | 'createdAt';
@@ -46,6 +48,7 @@ export type ColumnWidths<K extends string> = Partial<Record<K, number>>;
 export interface UiPreferences {
   viewMode: ViewMode;
   theme: ThemeMode;
+  locale: AppLocale;
   projectSort: SortDescriptor<ProjectColumnKey> | null;
   taskSort: SortDescriptor<TaskColumnKey> | null;
   projectFilters: ProjectFilters;

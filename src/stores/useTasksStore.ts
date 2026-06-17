@@ -10,7 +10,9 @@ import {
   type TaskStatus as TaskStatusType,
   type UpdateTaskDto,
 } from '@/types';
+import { t as i18nT } from '@/i18n';
 import { useToastStore } from './useToastStore';
+import { localizeApiError } from './localizeApiError';
 
 type LoadStatus = 'idle' | 'loading' | 'success' | 'error';
 
@@ -78,7 +80,7 @@ export const useTasksStore = defineStore('tasks', () => {
       const err = normalizeError(e);
       error.value = err;
       status.value = 'error';
-      useToastStore().error(err.message);
+      useToastStore().error(localizeApiError(err));
     }
   }
 
@@ -86,10 +88,10 @@ export const useTasksStore = defineStore('tasks', () => {
     try {
       const created = await taskService.create(dto);
       items.value = [...items.value, created];
-      useToastStore().success('Task created');
+      useToastStore().success(i18nT('toast.taskCreated'));
       return created;
     } catch (e) {
-      useToastStore().error(normalizeError(e).message);
+      useToastStore().error(localizeApiError(normalizeError(e)));
       return null;
     }
   }
@@ -101,11 +103,11 @@ export const useTasksStore = defineStore('tasks', () => {
     try {
       const updated = await taskService.update(id, dto);
       items.value = items.value.map((t) => (t.id === id ? updated : t));
-      useToastStore().success('Task updated');
+      useToastStore().success(i18nT('toast.taskUpdated'));
       return updated;
     } catch (e) {
       if (snapshot) items.value = items.value.map((t) => (t.id === id ? snapshot : t));
-      useToastStore().error(normalizeError(e).message);
+      useToastStore().error(localizeApiError(normalizeError(e)));
       return null;
     } finally {
       setPending(id, false);
@@ -117,11 +119,11 @@ export const useTasksStore = defineStore('tasks', () => {
     items.value = items.value.filter((t) => t.id !== id);
     try {
       await taskService.remove(id);
-      useToastStore().success('Task deleted');
+      useToastStore().success(i18nT('toast.taskDeleted'));
       return true;
     } catch (e) {
       items.value = snapshot;
-      useToastStore().error(normalizeError(e).message);
+      useToastStore().error(localizeApiError(normalizeError(e)));
       return false;
     }
   }
@@ -142,7 +144,7 @@ export const useTasksStore = defineStore('tasks', () => {
       await Promise.all(changes.map((c) => taskService.update(c.id, c.dto)));
     } catch (e) {
       items.value = snapshot;
-      useToastStore().error(normalizeError(e).message);
+      useToastStore().error(localizeApiError(normalizeError(e)));
       await loadAll(true);
     }
   }
