@@ -15,7 +15,6 @@ export const routes: RouteRecordRaw[] = [
     path: '/projects/:id',
     name: RouteNames.ProjectDetails,
     component: () => import('@/pages/ProjectDetailsPage.vue'),
-    props: true,
   },
   {
     path: '/dashboard',

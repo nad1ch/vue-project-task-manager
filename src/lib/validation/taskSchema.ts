@@ -2,7 +2,11 @@ import { z } from 'zod';
 import { ASSIGNEES } from '@/constants';
 import { isPastDate, isValidDateString } from '@/lib/date';
 
-const assigneeSchema = z.enum(ASSIGNEES).nullable();
+// Treat an empty selection as "unassigned" (null) before validating against the list.
+const assigneeSchema = z.preprocess(
+  (value) => (value === '' ? null : value),
+  z.enum(ASSIGNEES).nullable(),
+);
 
 const baseShape = {
   title: z
@@ -24,8 +28,16 @@ export const taskCreateSchema = z.object({
 });
 
 /**
- * Update: all fields optional, and the past-date rule is relaxed so existing
- * (already overdue) tasks can still have unrelated fields edited. `order` is
+ * Edit: same required shape as create, but the past-date rule is relaxed so an
+ * already-overdue task can still be edited.
+ */
+export const taskEditSchema = z.object({
+  ...baseShape,
+  dueDate: z.string().refine(isValidDateString, 'A valid due date is required'),
+});
+
+/**
+ * Update DTO (service-level): all fields optional, past date allowed. `order` is
  * the internal DnD position.
  */
 export const taskUpdateSchema = z
