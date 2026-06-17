@@ -1,19 +1,20 @@
 <script setup lang="ts">
-import { computed, onMounted, ref } from 'vue';
-import { useRoute } from 'vue-router';
-import { RouterLink } from 'vue-router';
+import { computed, onMounted, ref, watchEffect } from 'vue';
+import { useRoute, RouterLink } from 'vue-router';
 import { storeToRefs } from 'pinia';
+import { VueDraggable } from 'vue-draggable-plus';
 import { useProjectsStore } from '@/stores/useProjectsStore';
 import { useTasksStore } from '@/stores/useTasksStore';
 import { useUiPrefsStore } from '@/stores/useUiPrefsStore';
 import { useTableSort } from '@/composables/useTableSort';
 import { useConfirm } from '@/composables/useConfirm';
 import { compareDates, compareNumbers, compareStrings, type Comparator } from '@/lib/compare';
-import { formatDate, isOverdue } from '@/lib/date';
+import { countStatusBefore, neighbourStatus } from '@/lib/reorder';
 import { ASSIGNEES, PROJECT_STATUS_META, TASK_STATUS_META } from '@/constants';
 import { RouteNames } from '@/router/routeNames';
 import {
   TaskStatus,
+  ViewMode,
   type Task,
   type TaskColumnKey,
   type TaskStatus as TaskStatusType,
@@ -24,13 +25,20 @@ import PageHeader from '@/components/layout/PageHeader.vue';
 import DataTable from '@/components/table/DataTable.vue';
 import TableToolbar from '@/components/table/TableToolbar.vue';
 import TaskFormModal from '@/components/task/TaskFormModal.vue';
+import TaskTableRow from '@/components/task/TaskTableRow.vue';
+import KanbanBoard from '@/components/kanban/KanbanBoard.vue';
 import BaseButton from '@/components/ui/BaseButton.vue';
 import BaseSelect from '@/components/ui/BaseSelect.vue';
 import StatusBadge from '@/components/ui/StatusBadge.vue';
-import IconButton from '@/components/ui/IconButton.vue';
+import ViewModeToggle from '@/components/ui/ViewModeToggle.vue';
 import EmptyState from '@/components/ui/EmptyState.vue';
 import ErrorState from '@/components/ui/ErrorState.vue';
 import TableSkeleton from '@/components/ui/TableSkeleton.vue';
+
+interface DragEventLike {
+  oldIndex?: number;
+  newIndex?: number;
+}
 
 const route = useRoute();
 const projectsStore = useProjectsStore();
@@ -103,6 +111,32 @@ function onResize(key: string, width: number): void {
   uiPrefs.setTaskColumnWidth(key as TaskColumnKey, width);
 }
 
+// --- view mode + DnD gating ---
+const viewMode = computed({
+  get: () => uiPrefs.viewMode,
+  set: (mode) => uiPrefs.setViewMode(mode),
+});
+const canDragTable = computed(() => uiPrefs.taskSort === null && !uiPrefs.isTaskFilterActive);
+const kanbanDndEnabled = computed(() => !uiPrefs.isTaskFilterActive);
+
+// Manual-mode table order: grouped by status, then by lane order.
+const manualList = ref<Task[]>([]);
+watchEffect(() => {
+  manualList.value = [...projectTasks.value].sort(
+    (a, b) => STATUS_ORDER[a.status] - STATUS_ORDER[b.status] || a.order - b.order,
+  );
+});
+
+function onTableReorder(event: DragEventLike): void {
+  const flat = manualList.value;
+  const index = event.newIndex ?? 0;
+  const moved = flat[index];
+  if (!moved) return;
+  const target = (neighbourStatus(flat, index) ?? moved.status) as TaskStatusType;
+  const laneIndex = countStatusBefore(flat, index, target);
+  void tasksStore.moveTask(moved.id, target, laneIndex);
+}
+
 // --- filters ---
 const assigneeFilter = computed({
   get: () => uiPrefs.taskFilters.assignee,
@@ -126,22 +160,25 @@ const statusFilterOptions = [
 const modalOpen = ref(false);
 const modalMode = ref<'create' | 'edit'>('create');
 const editing = ref<Task | null>(null);
+const createStatus = ref<TaskStatusType>(TaskStatus.Todo);
 const submitting = ref(false);
 
-const modalInitial = computed(() =>
-  editing.value
-    ? {
-        title: editing.value.title,
-        status: editing.value.status,
-        dueDate: editing.value.dueDate,
-        assignee: editing.value.assignee,
-      }
-    : undefined,
-);
+const modalInitial = computed(() => {
+  if (editing.value) {
+    return {
+      title: editing.value.title,
+      status: editing.value.status,
+      dueDate: editing.value.dueDate,
+      assignee: editing.value.assignee,
+    };
+  }
+  return { title: '', status: createStatus.value, dueDate: '', assignee: null };
+});
 
-function openCreate(): void {
+function openCreate(status: TaskStatusType = TaskStatus.Todo): void {
   modalMode.value = 'create';
   editing.value = null;
+  createStatus.value = status;
   modalOpen.value = true;
 }
 function openEdit(task: Task): void {
@@ -177,13 +214,16 @@ const showEmpty = computed(() => tasksLoaded.value && projectTasks.value.length 
 const showNoMatch = computed(
   () => projectTasks.value.length > 0 && filteredTasks.value.length === 0,
 );
+const showContent = computed(
+  () => !showSkeleton.value && !showError.value && !showEmpty.value && !showNoMatch.value,
+);
 </script>
 
 <template>
   <section class="details">
     <RouterLink class="details__back" :to="{ name: RouteNames.Projects }">← Projects</RouterLink>
 
-    <div v-if="notFound" class="details__notfound">
+    <div v-if="notFound">
       <EmptyState title="Project not found" description="This project may have been deleted.">
         <template #actions>
           <RouterLink :to="{ name: RouteNames.Projects }">
@@ -200,7 +240,7 @@ const showNoMatch = computed(
             :label="PROJECT_STATUS_META[project.status].label"
             :tone="PROJECT_STATUS_META[project.status].tone"
           />
-          <BaseButton variant="primary" @click="openCreate">+ New task</BaseButton>
+          <BaseButton variant="primary" @click="openCreate()">+ New task</BaseButton>
         </template>
       </PageHeader>
 
@@ -224,6 +264,9 @@ const showNoMatch = computed(
               />
             </div>
           </template>
+          <template #actions>
+            <ViewModeToggle v-model="viewMode" />
+          </template>
         </TableToolbar>
 
         <TableSkeleton v-if="showSkeleton" :columns="5" />
@@ -234,7 +277,7 @@ const showNoMatch = computed(
           description="Add the first task for this project."
         >
           <template #actions>
-            <BaseButton variant="primary" @click="openCreate">+ New task</BaseButton>
+            <BaseButton variant="primary" @click="openCreate()">+ New task</BaseButton>
           </template>
         </EmptyState>
         <EmptyState
@@ -247,46 +290,65 @@ const showNoMatch = computed(
           </template>
         </EmptyState>
 
-        <DataTable
-          v-else
-          :columns="columns"
-          :widths="uiPrefs.taskColumnWidths"
-          :get-aria-sort="ariaSortFor"
-          has-actions
-          @toggle-sort="onToggleSort"
-          @resize="onResize"
-        >
-          <tr
-            v-for="task in sortedRows"
-            :key="task.id"
-            class="dt-row--clickable"
-            @click="openEdit(task)"
-          >
-            <td><span class="mono muted">#{{ task.id }}</span></td>
-            <td><span class="task-title">{{ task.title }}</span></td>
-            <td>
-              <span v-if="task.assignee">{{ task.assignee }}</span>
-              <span v-else class="muted">Unassigned</span>
-            </td>
-            <td>
-              <StatusBadge
-                :label="TASK_STATUS_META[task.status].label"
-                :tone="TASK_STATUS_META[task.status].tone"
-              />
-            </td>
-            <td>
-              <span class="tabular" :class="{ overdue: isOverdue(task.dueDate, task.status) }">
-                {{ formatDate(task.dueDate) }}
-              </span>
-            </td>
-            <td class="dt-cell--right" @click.stop>
-              <div class="row-actions">
-                <IconButton label="Edit task" @click="openEdit(task)">✎</IconButton>
-                <IconButton label="Delete task" danger @click="onDelete(task)">🗑</IconButton>
-              </div>
-            </td>
-          </tr>
-        </DataTable>
+        <template v-else-if="showContent">
+          <!-- TABLE VIEW -->
+          <template v-if="viewMode === ViewMode.Table">
+            <p v-if="!canDragTable" class="dnd-note">
+              Drag-to-reorder is available in the default order with no active filters. Clear sorting
+              and filters to drag rows.
+            </p>
+            <DataTable
+              :columns="columns"
+              :widths="uiPrefs.taskColumnWidths"
+              :get-aria-sort="ariaSortFor"
+              has-actions
+              @toggle-sort="onToggleSort"
+              @resize="onResize"
+            >
+              <VueDraggable
+                v-if="canDragTable"
+                v-model="manualList"
+                tag="tbody"
+                :animation="150"
+                ghost-class="task-row-ghost"
+                @update="onTableReorder"
+              >
+                <TaskTableRow
+                  v-for="task in manualList"
+                  :key="task.id"
+                  :task="task"
+                  draggable
+                  @edit="openEdit(task)"
+                  @delete="onDelete(task)"
+                />
+              </VueDraggable>
+              <tbody v-else>
+                <TaskTableRow
+                  v-for="task in sortedRows"
+                  :key="task.id"
+                  :task="task"
+                  @edit="openEdit(task)"
+                  @delete="onDelete(task)"
+                />
+              </tbody>
+            </DataTable>
+          </template>
+
+          <!-- KANBAN VIEW -->
+          <div v-else class="kanban-wrap">
+            <p v-if="!kanbanDndEnabled" class="dnd-note">
+              Drag-and-drop is disabled while filters are active. Clear filters to move cards.
+            </p>
+            <KanbanBoard
+              :tasks="filteredTasks"
+              :project-id="projectId"
+              :dnd-enabled="kanbanDndEnabled"
+              @edit="openEdit"
+              @delete="onDelete"
+              @create="openCreate"
+            />
+          </div>
+        </template>
       </div>
     </template>
 
@@ -327,21 +389,19 @@ const showNoMatch = computed(
   overflow: hidden;
 }
 .filter {
-  width: 200px;
+  width: 190px;
 }
-.task-title {
-  font-weight: var(--weight-medium);
-  color: var(--text-strong);
-}
-.muted {
+.dnd-note {
+  padding: var(--space-2) var(--space-4);
+  background: var(--surface-subtle);
+  border-bottom: 1px solid var(--border);
+  font-size: var(--text-xs);
   color: var(--text-muted);
 }
-.overdue {
-  color: var(--danger);
-  font-weight: var(--weight-medium);
+.kanban-wrap {
+  padding: var(--space-4);
 }
-.row-actions {
-  display: inline-flex;
-  gap: 2px;
+:deep(.task-row-ghost) {
+  opacity: 0.4;
 }
 </style>

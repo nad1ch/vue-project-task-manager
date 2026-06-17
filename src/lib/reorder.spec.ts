@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { moveItem, sequentialOrderChanges } from './reorder';
+import { countStatusBefore, moveItem, neighbourStatus, sequentialOrderChanges } from './reorder';
 
 describe('moveItem', () => {
   it('moves an item forward', () => {
@@ -38,5 +38,27 @@ describe('sequentialOrderChanges', () => {
       { id: 2, order: 1 },
     ];
     expect(sequentialOrderChanges(lane)).toEqual([]);
+  });
+});
+
+describe('flat-table DnD helpers', () => {
+  const flat = [
+    { status: 'todo' },
+    { status: 'todo' },
+    { status: 'in_progress' },
+    { status: 'done' },
+  ];
+
+  it('detects the neighbouring block status', () => {
+    expect(neighbourStatus(flat, 0)).toBe('todo');
+    expect(neighbourStatus(flat, 2)).toBe('todo'); // joined after a todo
+    expect(neighbourStatus(flat, 3)).toBe('in_progress');
+    expect(neighbourStatus([], 0)).toBeNull();
+  });
+
+  it('counts same-status rows before an index', () => {
+    expect(countStatusBefore(flat, 2, 'todo')).toBe(2);
+    expect(countStatusBefore(flat, 3, 'in_progress')).toBe(1);
+    expect(countStatusBefore(flat, 0, 'todo')).toBe(0);
   });
 });

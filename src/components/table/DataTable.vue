@@ -60,9 +60,7 @@ const { startResize, widthFor } = useResizableColumns<string>({
           </th>
         </tr>
       </thead>
-      <tbody class="dt__body">
-        <slot />
-      </tbody>
+      <slot />
     </table>
   </div>
 </template>
@@ -154,17 +152,17 @@ const { startResize, widthFor } = useResizableColumns<string>({
     clip: rect(0 0 0 0);
   }
 
-  // Slotted rows live in the parent's scope; style them via :deep.
-  &__body :deep(tr) {
+  // Slotted rows (and their tbody) live in the parent's scope; style via :deep.
+  :deep(tbody tr) {
     border-bottom: 1px solid var(--border-subtle);
   }
-  &__body :deep(tr.dt-row--clickable) {
+  :deep(tbody tr.dt-row--clickable) {
     cursor: pointer;
   }
-  &__body :deep(tr:hover) {
+  :deep(tbody tr:hover) {
     background: var(--surface-hover);
   }
-  &__body :deep(td) {
+  :deep(tbody td) {
     height: 48px;
     padding: 0 var(--space-4);
     font-size: var(--text-sm);
@@ -173,8 +171,29 @@ const { startResize, widthFor } = useResizableColumns<string>({
     text-overflow: ellipsis;
     white-space: nowrap;
   }
-  &__body :deep(td.dt-cell--right) {
+  :deep(tbody td.dt-cell--right) {
     text-align: right;
+  }
+  :deep(tbody tr.dt-row--group) {
+    cursor: default;
+    background: var(--surface-subtle);
+  }
+  :deep(tbody tr.dt-row--group:hover) {
+    background: var(--surface-subtle);
+  }
+  :deep(tbody td.dt-group-cell) {
+    height: 34px;
+    font-size: var(--text-2xs);
+    font-weight: var(--weight-semibold);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--text-muted);
+  }
+  :deep(.dt-drag-ghost) {
+    opacity: 0.5;
+  }
+  :deep(.dt-drag-chosen) {
+    background: var(--accent-soft);
   }
 }
 </style>

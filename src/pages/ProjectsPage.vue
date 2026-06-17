@@ -216,12 +216,13 @@ const showNoMatch = computed(() => items.value.length > 0 && filtered.value.leng
         @toggle-sort="onToggleSort"
         @resize="onResize"
       >
-        <tr
-          v-for="project in sortedRows"
-          :key="project.id"
-          class="dt-row--clickable"
-          @click="goToProject(project)"
-        >
+        <tbody>
+          <tr
+            v-for="project in sortedRows"
+            :key="project.id"
+            class="dt-row--clickable"
+            @click="goToProject(project)"
+          >
           <td><span class="mono muted">#{{ project.id }}</span></td>
           <td><span class="project-name">{{ project.name }}</span></td>
           <td class="dt-cell--right"><span class="tabular">{{ counts[project.id] ?? 0 }}</span></td>
@@ -238,7 +239,8 @@ const showNoMatch = computed(() => items.value.length > 0 && filtered.value.leng
               <IconButton label="Delete project" danger @click="onDelete(project)">🗑</IconButton>
             </div>
           </td>
-        </tr>
+          </tr>
+        </tbody>
       </DataTable>
     </div>
 

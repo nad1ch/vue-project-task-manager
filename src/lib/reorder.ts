@@ -29,3 +29,26 @@ export function sequentialOrderChanges<T extends { id: number; order: number }>(
   });
   return changes;
 }
+
+/** Status of the block a freshly-dropped row joined (neighbour before, else after). */
+export function neighbourStatus(
+  flat: ReadonlyArray<{ status: string }>,
+  index: number,
+): string | null {
+  const prev = index > 0 ? flat[index - 1] : undefined;
+  const next = index < flat.length - 1 ? flat[index + 1] : undefined;
+  return prev?.status ?? next?.status ?? null;
+}
+
+/** How many rows of `status` precede `index` in a flat (status-grouped) list. */
+export function countStatusBefore(
+  flat: ReadonlyArray<{ status: string }>,
+  index: number,
+  status: string,
+): number {
+  let count = 0;
+  for (let i = 0; i < index && i < flat.length; i += 1) {
+    if (flat[i]?.status === status) count += 1;
+  }
+  return count;
+}

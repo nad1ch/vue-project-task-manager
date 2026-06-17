@@ -40,7 +40,7 @@ const { handleSubmit } = useForm({
   initialValues: {
     title: props.initial?.title ?? '',
     status: props.initial?.status ?? TaskStatus.Todo,
-    dueDate: props.initial ? toDateInputValue(props.initial.dueDate) : todayInputValue(),
+    dueDate: props.initial?.dueDate ? toDateInputValue(props.initial.dueDate) : todayInputValue(),
     assignee: props.initial?.assignee ?? '',
   },
 });
