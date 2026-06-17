@@ -6,6 +6,7 @@ import { VueDraggable } from 'vue-draggable-plus';
 import { useProjectsStore } from '@/stores/useProjectsStore';
 import { useTasksStore } from '@/stores/useTasksStore';
 import { useUiPrefsStore } from '@/stores/useUiPrefsStore';
+import { useToastStore } from '@/stores/useToastStore';
 import { useTableSort } from '@/composables/useTableSort';
 import { useConfirm } from '@/composables/useConfirm';
 import { compareDates, compareNumbers, compareStrings, type Comparator } from '@/lib/compare';
@@ -44,6 +45,7 @@ const route = useRoute();
 const projectsStore = useProjectsStore();
 const tasksStore = useTasksStore();
 const uiPrefs = useUiPrefsStore();
+const toastStore = useToastStore();
 const { confirm } = useConfirm();
 
 const { loaded: projectsLoaded } = storeToRefs(projectsStore);
@@ -120,11 +122,14 @@ const canDragTable = computed(() => uiPrefs.taskSort === null && !uiPrefs.isTask
 const kanbanDndEnabled = computed(() => !uiPrefs.isTaskFilterActive);
 
 // Manual-mode table order: grouped by status, then by lane order.
-const manualList = ref<Task[]>([]);
-watchEffect(() => {
-  manualList.value = [...projectTasks.value].sort(
+function sortedManual(): Task[] {
+  return [...projectTasks.value].sort(
     (a, b) => STATUS_ORDER[a.status] - STATUS_ORDER[b.status] || a.order - b.order,
   );
+}
+const manualList = ref<Task[]>([]);
+watchEffect(() => {
+  manualList.value = sortedManual();
 });
 
 function onTableReorder(event: DragEventLike): void {
@@ -133,8 +138,16 @@ function onTableReorder(event: DragEventLike): void {
   const moved = flat[index];
   if (!moved) return;
   const target = (neighbourStatus(flat, index) ?? moved.status) as TaskStatusType;
-  const laneIndex = countStatusBefore(flat, index, target);
-  void tasksStore.moveTask(moved.id, target, laneIndex);
+  if (target !== moved.status) {
+    // Table DnD reorders within a status only; status changes belong to the Kanban.
+    manualList.value = sortedManual();
+    toastStore.warning('To change a task’s status, use the Kanban board.');
+    return;
+  }
+  const lane = tasksStore.laneOf(projectId.value, target);
+  const fromIndex = lane.findIndex((t) => t.id === moved.id);
+  const toIndex = countStatusBefore(flat, index, target);
+  void tasksStore.reorderWithinLane(projectId.value, target, fromIndex, toIndex);
 }
 
 // --- filters ---
@@ -296,6 +309,9 @@ const showContent = computed(
             <p v-if="!canDragTable" class="dnd-note">
               Drag-to-reorder is available in the default order with no active filters. Clear sorting
               and filters to drag rows.
+            </p>
+            <p v-else class="dnd-note">
+              Drag rows to reorder within a status. Use the Kanban board to change a task’s status.
             </p>
             <DataTable
               :columns="columns"
