@@ -9,7 +9,7 @@ Built by Bohdan as a front-end test assignment. There is **no backend**: the app
 ships with an Axios-based mock API backed by `localStorage`, so it runs entirely in
 the browser and deploys as a static site.
 
-> **Live demo:** _deploy-ready — see [Deployment](#deployment)._
+> **Live demo:** **https://nad1ch.github.io/vue-project-task-manager/**
 
 ---
 
@@ -132,20 +132,23 @@ instead of crashing.
 
 ## Deployment
 
-Static SPA — any static host works. The repo includes `vercel.json` with an SPA
-rewrite so deep links such as `/projects/1` resolve on refresh.
+The production deploy is **GitHub Pages**, served from the built `dist/` artifact —
+never the repository source. It is fully automated by GitHub Actions
+(`.github/workflows/deploy.yml`): on every push to `main` the workflow runs
+type-check → lint → test → build, then uploads `dist/` as the Pages artifact and
+deploys it. The deploy fails if any gate fails.
 
-**Deploy to Vercel:**
+Two settings make the static SPA work under the repo subpath:
 
-```bash
-npm i -g vercel
-vercel            # link the project (framework preset: Vite)
-vercel --prod     # production deploy
-```
+- `vite.config.ts` sets `base: '/vue-project-task-manager/'` so assets load from
+  `/vue-project-task-manager/assets/*`.
+- the router uses **hash history**, so deep links such as
+  `…/vue-project-task-manager/#/projects/1` resolve correctly on refresh without a
+  server-side fallback.
 
-Or import the GitHub repository at vercel.com → New Project (Vite is auto-detected,
-build `npm run build`, output `dist`). Netlify works the same way; for GitHub Pages,
-set a base path and add a `404.html` SPA fallback.
+Pages is configured with **Build and deployment → Source: GitHub Actions**.
+Any other static host works too (Netlify, Cloudflare Pages); only the `base` would
+change.
 
 ## Known limitations
 
