@@ -325,6 +325,7 @@ const showContent = computed(
               :widths="uiPrefs.taskColumnWidths"
               :get-aria-sort="ariaSortFor"
               has-actions
+              sticky-actions
               @toggle-sort="onToggleSort"
               @resize="onResize"
             >

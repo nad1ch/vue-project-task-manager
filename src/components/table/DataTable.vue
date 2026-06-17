@@ -12,6 +12,8 @@ const props = defineProps<{
   widths: ColumnWidths<string>;
   getAriaSort: (key: string) => AriaSort;
   hasActions?: boolean;
+  /** Pin the actions column to the right edge so it stays visible while scrolling. */
+  stickyActions?: boolean;
 }>();
 
 const emit = defineEmits<{ 'toggle-sort': [string]; resize: [string, number] }>();
@@ -23,7 +25,7 @@ const { startResize, widthFor } = useResizableColumns<string>({
 </script>
 
 <template>
-  <div class="dt">
+  <div class="dt" :class="{ 'dt--sticky-actions': stickyActions }">
     <table class="dt__table">
       <colgroup>
         <col v-for="col in columns" :key="col.key" :style="{ width: `${widthFor(col.key)}px` }" />
@@ -56,7 +58,7 @@ const { startResize, widthFor } = useResizableColumns<string>({
               @pointerdown="startResize(col.key, $event)"
             />
           </th>
-          <th v-if="hasActions" scope="col" class="dt__th dt__th--right">
+          <th v-if="hasActions" scope="col" class="dt__th dt__th--right dt__th--actions">
             <span class="dt__sr">{{ t('common.actions') }}</span>
           </th>
         </tr>
@@ -195,6 +197,30 @@ const { startResize, widthFor } = useResizableColumns<string>({
   }
   :deep(.dt-drag-chosen) {
     background: var(--accent-soft);
+  }
+}
+
+// Pin the actions column so Open/Edit/Delete stay visible while the table
+// scrolls horizontally. The soft left shadow both separates the column and
+// hints that content scrolls beneath it. Backgrounds match each context
+// (header = raised, rows = surface) so they're seamless in light and dark.
+.dt--sticky-actions {
+  .dt__th--actions {
+    position: sticky;
+    right: 0;
+    z-index: 2;
+    background: var(--surface-raised);
+    box-shadow: -10px 0 12px -10px hsl(var(--shadow-color) / 0.22);
+  }
+  :deep(tbody td:last-child) {
+    position: sticky;
+    right: 0;
+    z-index: 1;
+    background: var(--surface);
+    box-shadow: -10px 0 12px -10px hsl(var(--shadow-color) / 0.22);
+  }
+  :deep(tbody tr:hover td:last-child) {
+    background: var(--surface-hover);
   }
 }
 </style>

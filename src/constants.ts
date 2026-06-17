@@ -36,20 +36,23 @@ export const TASK_STATUS_META: Record<TaskStatus, { label: string; tone: Tone }>
   [TaskStatus.Done]: { label: 'Done', tone: 'success' },
 };
 
+// Compact defaults: the table is `max(100%, sum-of-widths)` wide, so smaller
+// widths mean less internal scroll at medium widths while still growing to fill
+// wide desktops. Status/date widths stay generous enough for Ukrainian labels.
 export const DEFAULT_PROJECT_COLUMN_WIDTHS: Required<ColumnWidths<ProjectColumnKey>> = {
-  id: 80,
-  name: 280,
-  tasksCount: 130,
+  id: 64,
+  name: 220,
+  tasksCount: 108,
   status: 140,
-  createdAt: 170,
+  createdAt: 148,
 };
 
 export const DEFAULT_TASK_COLUMN_WIDTHS: Required<ColumnWidths<TaskColumnKey>> = {
-  id: 80,
-  title: 340,
-  assignee: 160,
-  status: 150,
-  dueDate: 160,
+  id: 64,
+  title: 248,
+  assignee: 128,
+  status: 144,
+  dueDate: 148,
 };
 
 export const DEFAULT_UI_PREFERENCES: UiPreferences = {

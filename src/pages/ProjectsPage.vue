@@ -226,6 +226,7 @@ const showNoMatch = computed(() => items.value.length > 0 && filtered.value.leng
         :widths="uiPrefs.projectColumnWidths"
         :get-aria-sort="ariaSortFor"
         has-actions
+        sticky-actions
         @toggle-sort="onToggleSort"
         @resize="onResize"
       >
