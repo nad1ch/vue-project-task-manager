@@ -1,0 +1,150 @@
+// Design tokens (CSS custom properties). Emitted once via main.scss.
+// Concept A: clean SaaS dashboard — light default + dark theme via [data-theme="dark"].
+
+:root {
+  // Surfaces
+  --canvas: #f7f8fa;
+  --surface: #ffffff;
+  --surface-subtle: #f2f4f7;
+  --surface-raised: #ffffff;
+  --surface-hover: #f0f2f5;
+
+  // Borders
+  --border: #e3e7ed;
+  --border-subtle: #edf0f4;
+  --border-strong: #cdd3dc;
+
+  // Text
+  --text-strong: #0f141a;
+  --text: #2a313b;
+  --text-muted: #677081;
+  --text-faint: #98a1b0;
+
+  // Accent
+  --accent: #4f46e5;
+  --accent-hover: #4338ca;
+  --accent-soft: #ecebfe;
+  --accent-contrast: #ffffff;
+  --focus-ring: rgba(79, 70, 229, 0.45);
+
+  // Semantic
+  --success: #0e8a50;
+  --success-soft: #e2f6ec;
+  --warning: #b7791f;
+  --warning-soft: #fbf1da;
+  --danger: #d03a4b;
+  --danger-soft: #fce6e9;
+  --info: #2563c9;
+  --info-soft: #e4eefc;
+
+  // Misc
+  --track: #e7eaef;
+  --overlay: rgba(15, 20, 26, 0.45);
+  --skeleton-base: #e9ecf1;
+  --shadow-color: 220 25% 20%;
+
+  // Spacing (8px grid, 4px sub-grid)
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 24px;
+  --space-6: 32px;
+  --space-7: 48px;
+  --space-8: 64px;
+
+  // Radius
+  --radius-xs: 4px;
+  --radius-sm: 6px;
+  --radius-md: 8px;
+  --radius-lg: 10px;
+  --radius-xl: 14px;
+  --radius-pill: 999px;
+
+  // Shadows
+  --shadow-xs: 0 1px 2px hsl(var(--shadow-color) / 0.06);
+  --shadow-sm: 0 1px 3px hsl(var(--shadow-color) / 0.08), 0 1px 2px hsl(var(--shadow-color) / 0.06);
+  --shadow-lg: 0 12px 32px hsl(var(--shadow-color) / 0.16), 0 4px 8px hsl(var(--shadow-color) / 0.08);
+
+  // Layout dims
+  --sidebar-w: 256px;
+  --sidebar-w-collapsed: 64px;
+  --topbar-h: 56px;
+  --drawer-w: 480px;
+  --row-h-comfortable: 48px;
+  --row-h-compact: 36px;
+
+  // Typography
+  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', 'SF Mono', 'Cascadia Code', ui-monospace, Menlo, monospace;
+  --weight-regular: 400;
+  --weight-medium: 500;
+  --weight-semibold: 600;
+  --weight-bold: 700;
+  --text-2xs: 11px;
+  --text-xs: 12px;
+  --text-sm: 13px;
+  --text-base: 14px;
+  --text-md: 16px;
+  --text-lg: 18px;
+  --text-xl: 20px;
+  --text-2xl: 24px;
+  --text-3xl: 30px;
+  --leading-tight: 1.2;
+  --leading-normal: 1.5;
+
+  // Motion
+  --ease-standard: cubic-bezier(0.2, 0, 0, 1);
+  --ease-emphasized: cubic-bezier(0.32, 0.72, 0, 1);
+  --dur-fast: 120ms;
+  --dur-base: 180ms;
+  --dur-slow: 240ms;
+
+  // Z-layers
+  --z-sticky: 10;
+  --z-dropdown: 100;
+  --z-overlay: 1000;
+  --z-toast: 1100;
+  --z-drag: 1200;
+}
+
+[data-theme='dark'] {
+  --canvas: #0b0d10;
+  --surface: #14171c;
+  --surface-subtle: #0f1216;
+  --surface-raised: #1b1f26;
+  --surface-hover: #1e232b;
+
+  --border: #262b33;
+  --border-subtle: #1e232b;
+  --border-strong: #363d47;
+
+  --text-strong: #f4f6f8;
+  --text: #d5dae1;
+  --text-muted: #9098a5;
+  --text-faint: #646c79;
+
+  --accent: #7c75ff;
+  --accent-hover: #9089ff;
+  --accent-soft: #221f3d;
+  --accent-contrast: #0b0d10;
+  --focus-ring: rgba(124, 117, 255, 0.55);
+
+  --success: #3bd489;
+  --success-soft: #0e2a1e;
+  --warning: #f5c24b;
+  --warning-soft: #2e2410;
+  --danger: #ff6b7a;
+  --danger-soft: #311419;
+  --info: #5ba3ff;
+  --info-soft: #0e2138;
+
+  --track: #22272f;
+  --overlay: rgba(0, 0, 0, 0.62);
+  --skeleton-base: #1c2128;
+  --shadow-color: 0 0% 0%;
+
+  --shadow-xs: 0 1px 2px hsl(var(--shadow-color) / 0.5);
+  --shadow-sm: 0 2px 6px hsl(var(--shadow-color) / 0.55);
+  --shadow-lg: 0 16px 40px hsl(var(--shadow-color) / 0.7);
+}

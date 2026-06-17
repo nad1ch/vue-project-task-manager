@@ -1,0 +1,19 @@
+// Output-free SCSS mixins (only emit when used). Injected into every block via Vite.
+@use 'variables' as *;
+
+@mixin focus-ring {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 2px;
+}
+
+@mixin truncate {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+@mixin breakpoint($min-width) {
+  @media (min-width: $min-width) {
+    @content;
+  }
+}

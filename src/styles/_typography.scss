@@ -1,0 +1,31 @@
+// Base typography.
+
+html {
+  font-size: var(--text-base);
+}
+
+body {
+  font-family: var(--font-sans);
+  font-size: var(--text-base);
+  line-height: var(--leading-normal);
+  font-weight: var(--weight-regular);
+  color: var(--text);
+  background: var(--canvas);
+}
+
+h1,
+h2,
+h3,
+h4 {
+  line-height: var(--leading-tight);
+  font-weight: var(--weight-semibold);
+  color: var(--text-strong);
+}
+
+.tabular {
+  font-variant-numeric: tabular-nums lining-nums;
+}
+
+.mono {
+  font-family: var(--font-mono);
+}
