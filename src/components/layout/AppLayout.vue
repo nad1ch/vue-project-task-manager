@@ -373,6 +373,14 @@ async function onReset(): Promise<void> {
   }
 }
 
+@media (max-width: 600px) {
+  // On narrow phones the long app name would wrap and crowd the topbar controls;
+  // the mobile nav icons already convey location, so hide the redundant title.
+  .shell__title {
+    display: none;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .page-enter-active,
   .page-leave-active {
